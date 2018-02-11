@@ -34,6 +34,7 @@ void renderer::update() {
 	if (d <= 0) {
 		d = 100.f;
 	}
+
 	cout << d << "\n";
 	sf::CircleShape shape(d);
 	shape.setFillColor(sf::Color::Green);

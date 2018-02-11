@@ -33,3 +33,5 @@
 .vs/**
 graphics/x64/Debug/
 graphics/Debug/
+x64/Debug/graphics.pdb
+x64/Debug/graphics.ilk
