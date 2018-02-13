@@ -19,21 +19,21 @@ class renderer {
 	
 	public:
 		renderer(int height, int width);
-		void update(robot* r);
+		void update(std::vector<robot*> robots);
 		void drawRobot(robot * r);
 		void drawJoint(point * p, int weight);
 		void drawLine(point * a, point * b, int strength);
 };
 
 renderer::renderer(int height, int width) : 
-	_window(sf::VideoMode(height, width), "GA"),
+	_window(sf::VideoMode(width, height), "GA"),
 	_height(height),
 	_width(width)
 {
 
 }
 
-void renderer::update(robot* r) {
+void renderer::update(std::vector<robot*> robots) {
 	
 
 	sf::Event event;
@@ -43,10 +43,13 @@ void renderer::update(robot* r) {
 			_window.close();
 	}
 
-	r->tick();
 
 	_window.clear();
-	drawRobot(r);
+	
+	for (int i = 0; i < robots.size(); i++) {
+		drawRobot(robots[i]);
+	}
+	
 	_window.display();
 }
 

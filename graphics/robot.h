@@ -14,17 +14,59 @@ class robot
 	public:
 		std::vector<joint*> joints;
 		std::vector<muscle*> muscles;
-		robot();
+		robot(std::vector<uint8_t> chromosome);
 		void tick();
+		bool alive;
 
 };
 
-robot::robot()
+robot::robot(std::vector<uint8_t> chromosome)
 {
-	joints.push_back(new joint(new point(5, 310), new point(1,1), 100));
-	joints.push_back(new joint(new point(50, 480), new point(0,0), 50));
-	muscles.push_back(new muscle(joints[0], joints[1], 30, 50));
+	alive = false;
+
+	for (int i = 0; i < chromosome.size() - 4; i += 4) {
+		uint8_t t = chromosome[0 + i] % 2;
+
+		if(t == 0) {
+			uint8_t a = chromosome[1 + i];
+			uint8_t b = chromosome[2 + i];
+			uint8_t c = chromosome[2 + i];
+			joints.push_back(new joint(
+				new point(a, b),
+				new point(0, 0),
+				c
+			));
+		}
+	}
+	if (joints.size() == 0) {
+		return;
+	}
+
+	for (int i = 0; i < chromosome.size() - 4; i += 4) {
+		uint8_t t = chromosome[0 + i] % 2;
+
+		if (t == 1) {
+			uint8_t a = chromosome[1 + i];
+			uint8_t b = chromosome[2 + i];
+			uint8_t c = chromosome[2 + i];
+			int j_a = (muscles.size() + 1) % joints.size();
+			int j_b = a % joints.size();
+
+			muscles.push_back(new muscle(
+				joints[j_a],
+				joints[j_b],
+				b,
+				c
+			));
+		}
+	}
+	if (muscles.size() == 0) {
+		return;
+	}
+	
+	alive = true;
 }
+
 
 void robot::tick()
 {
