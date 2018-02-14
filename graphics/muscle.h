@@ -23,7 +23,7 @@ class muscle {
 muscle::muscle(joint* _a, joint* _b, float dl, float s) {
 	a = _a;
 	b = _b;
-	desiredLength = dl;
+	desiredLength = length() + (dl - 122) / 20;
 	strength = s;
 }
 

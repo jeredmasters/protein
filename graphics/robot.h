@@ -64,9 +64,20 @@ robot::robot(chromosome * _gene)
 			));
 		}
 	}
-	if (muscles.size() == 0) {
+	if (muscles.size() < joints.size()) {
 		return;
 	}
+
+	int lowest_joint = INT_MAX;
+	for (int i = 0; i < joints.size(); i++) {
+		if (joints[i]->position->y < lowest_joint) {
+			lowest_joint = joints[i]->position->y;
+		}
+	}
+	for (int i = 0; i < joints.size(); i++) {
+		joints[i]->position->y -= lowest_joint;
+	}
+
 	
 	alive = true;
 }
