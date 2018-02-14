@@ -47,7 +47,9 @@ void renderer::update(std::vector<robot*> robots) {
 	_window.clear();
 	
 	for (int i = 0; i < robots.size(); i++) {
-		drawRobot(robots[i]);
+		if (robots[i]->alive) {
+			drawRobot(robots[i]);
+		}
 	}
 	
 	_window.display();

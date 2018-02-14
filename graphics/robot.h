@@ -85,11 +85,13 @@ robot::robot(chromosome * _gene)
 
 void robot::tick()
 {
-	force();
-	gravity();
-	momentum();
-	friction();
-	floor();
+	if (alive) {
+		force();
+		gravity();
+		momentum();
+		friction();
+		floor();		
+	}
 	fittness();
 }
 void robot::fittness() {
@@ -109,13 +111,18 @@ void robot::force() {
 		muscle* m = muscles[i];
 		float length = m->length();
 		float delta = length - m->desiredLength;
-		float scaled = pow(delta / 5, 5);
+		float scaled = (pow(delta / 5, 5) / 10000) *  m->strength;
 		if (scaled == scaled && length != 0) { // check for NaN
+			if (scaled > 10) {
+				cout << "Something went wrong, killing robot for excessive force ";
+				alive = false;
+			}
+
 			float rX = m->dX() / length;
 			float rY = m->dY() / length;
-			float cY = (scaled / 10000) * rY * m->strength;
-			float cX = (scaled / 10000) * rX * m->strength;
-
+			float cY = rY * scaled;
+			float cX = rX * scaled;
+			
 			m->a->velocity->x -= cX;
 			m->a->velocity->y -= cY;
 
