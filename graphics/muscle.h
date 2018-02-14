@@ -15,9 +15,8 @@ class muscle {
 		float dX();
 		float dY();
 		float length();
-		float rX();
-		float rY();
 		float angle();
+		float force();
 		muscle(joint* _a, joint* _b, float dl, float s);
 };
 

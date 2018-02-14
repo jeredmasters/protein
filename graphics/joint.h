@@ -8,8 +8,9 @@ class joint {
 		point* position;
 		point* velocity;
 		int weight;
-		joint();
+		joint();		
 		joint(point* pos, point* vel, int w);
+		int fittness();
 };
 
 joint::joint(point* pos, point* vel, int w) {

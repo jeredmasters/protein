@@ -1,10 +1,12 @@
 #pragma once
 
 #include "muscle.h"
+#include "chromosome.h"
 
 class robot 
 {
 	private:
+		void fittness();
 		void force();
 		void gravity();
 		void momentum();
@@ -14,23 +16,25 @@ class robot
 	public:
 		std::vector<joint*> joints;
 		std::vector<muscle*> muscles;
-		robot(std::vector<uint8_t> chromosome);
+		robot(chromosome * _gene);
 		void tick();
 		bool alive;
-
+		chromosome * gene;
+		void dispose();
 };
 
-robot::robot(std::vector<uint8_t> chromosome)
+robot::robot(chromosome * _gene)
 {
+	gene = _gene;
 	alive = false;
 
-	for (int i = 0; i < chromosome.size() - 4; i += 4) {
-		uint8_t t = chromosome[0 + i] % 2;
+	for (int i = 0; i < gene->dna.size() - 4; i += 4) {
+		uint8_t t = gene->dna[0 + i] % 2;
 
 		if(t == 0) {
-			uint8_t a = chromosome[1 + i];
-			uint8_t b = chromosome[2 + i];
-			uint8_t c = chromosome[2 + i];
+			uint8_t a = gene->dna[1 + i];
+			uint8_t b = gene->dna[2 + i];
+			uint8_t c = gene->dna[2 + i];
 			joints.push_back(new joint(
 				new point(a, b),
 				new point(0, 0),
@@ -42,13 +46,13 @@ robot::robot(std::vector<uint8_t> chromosome)
 		return;
 	}
 
-	for (int i = 0; i < chromosome.size() - 4; i += 4) {
-		uint8_t t = chromosome[0 + i] % 2;
+	for (int i = 0; i < gene->dna.size() - 4; i += 4) {
+		uint8_t t = gene->dna[0 + i] % 2;
 
 		if (t == 1) {
-			uint8_t a = chromosome[1 + i];
-			uint8_t b = chromosome[2 + i];
-			uint8_t c = chromosome[2 + i];
+			uint8_t a = gene->dna[1 + i];
+			uint8_t b = gene->dna[2 + i];
+			uint8_t c = gene->dna[2 + i];
 			int j_a = (muscles.size() + 1) % joints.size();
 			int j_b = a % joints.size();
 
@@ -75,8 +79,20 @@ void robot::tick()
 	momentum();
 	friction();
 	floor();
+	fittness();
 }
-
+void robot::fittness() {
+	int max = 0;
+	if (alive) {
+		for (int i = 0; i < joints.size(); i++) {
+			int val = joints[i]->position->x * joints[i]->position->y;
+			if (val > max) {
+				max = val;
+			}
+		}
+	}
+	gene->fittness = max;
+}
 void robot::force() {
 	for (int i = 0; i < muscles.size(); i++) {
 		muscle* m = muscles[i];
@@ -129,3 +145,15 @@ void robot::floor()
 	}
 }
 
+void robot::dispose() {
+	for (int i = 0; i < joints.size(); i++) {
+		delete joints[i];
+	}
+	joints.clear();
+	for (int i = 0; i < muscles.size(); i++) {
+		delete muscles[i];
+	}
+	muscles.clear();
+	gene->dispose();
+	delete gene;
+}

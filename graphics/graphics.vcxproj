@@ -154,6 +154,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="chromosome.h" />
+    <ClInclude Include="ga.h" />
     <ClInclude Include="joint.h" />
     <ClInclude Include="muscle.h" />
     <ClInclude Include="point.h" />
