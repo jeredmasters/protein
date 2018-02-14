@@ -109,16 +109,19 @@ void robot::force() {
 		muscle* m = muscles[i];
 		float length = m->length();
 		float delta = length - m->desiredLength;
-		float rX = m->dX() / length;
-		float rY = m->dY() / length;
-		float cY = (delta / 10000) * rY * m->strength;
-		float cX = (delta / 10000) * rX * m->strength;
+		float scaled = pow(delta / 5, 5);
+		if (scaled == scaled && length != 0) { // check for NaN
+			float rX = m->dX() / length;
+			float rY = m->dY() / length;
+			float cY = (scaled / 10000) * rY * m->strength;
+			float cX = (scaled / 10000) * rX * m->strength;
 
-		m->a->velocity->x -= cX;
-		m->a->velocity->y -= cY;
+			m->a->velocity->x -= cX;
+			m->a->velocity->y -= cY;
 
-		m->b->velocity->x += cX;
-		m->b->velocity->y += cY;
+			m->b->velocity->x += cX;
+			m->b->velocity->y += cY;
+		}
 	}
 }
 
