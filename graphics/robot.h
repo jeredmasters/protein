@@ -3,11 +3,13 @@
 #include "muscle.h"
 #include "chromosome.h"
 
+const int TICK_PER_SEC = 1000;
+
 class robot 
 {
 	private:
 		void fittness();
-		void force();
+		void reaction();
 		void gravity();
 		void momentum();
 		void friction();
@@ -86,7 +88,7 @@ robot::robot(chromosome * _gene)
 void robot::tick()
 {
 	if (alive) {
-		force();
+		reaction();
 		gravity();
 		momentum();
 		friction();
@@ -106,28 +108,41 @@ void robot::fittness() {
 	}
 	gene->fittness = max;
 }
-void robot::force() {
+float springForce(float sd){
+	float q = pow(sd / 5, 2);
+	if (sd < 0) {
+		q *= -1;
+	}
+	return sd * 5 + q ;
+}
+void robot::reaction() {
 	for (int i = 0; i < muscles.size(); i++) {
 		muscle* m = muscles[i];
 		float length = m->length();
 		float delta = length - m->desiredLength;
-		float scaled = (pow(delta / 5, 5) / 10000) *  m->strength;
-		if (scaled == scaled && length != 0) { // check for NaN
-			if (scaled > 10) {
+		float scaled = m->strength * delta;
+		float force = springForce(scaled);
+
+		force = force / TICK_PER_SEC;
+
+		if (force == force && length != 0) { // check for NaN
+			if (force > 10000000) {
 				cout << "Something went wrong, killing robot for excessive force ";
 				alive = false;
 			}
+			
 
 			float rX = m->dX() / length;
 			float rY = m->dY() / length;
-			float cY = rY * scaled;
-			float cX = rX * scaled;
-			
-			m->a->velocity->x -= cX;
-			m->a->velocity->y -= cY;
+			float accY = rY * force;
+			float accX = rX * force;
 
-			m->b->velocity->x += cX;
-			m->b->velocity->y += cY;
+			
+			m->a->velocity->x -= (accX / 1000) / m->a->weight;
+			m->a->velocity->y -= accY / m->a->weight;
+
+			m->b->velocity->x += accX / m->a->weight;
+			m->b->velocity->y += accY / m->a->weight;
 		}
 	}
 }
@@ -135,15 +150,15 @@ void robot::force() {
 void robot::gravity()
 {
 	for (int i = 0; i < joints.size(); i++) {
-		joints[i]->velocity->y -= 0.1;
+		joints[i]->velocity->y -= 9800 / TICK_PER_SEC;
 	}
 }
 
 void robot::momentum()
 {
 	for (int i = 0; i < joints.size(); i++) {
-		joints[i]->position->x += joints[i]->velocity->x;
-		joints[i]->position->y += joints[i]->velocity->y;
+		joints[i]->position->x += joints[i]->velocity->x / TICK_PER_SEC;
+		joints[i]->position->y += joints[i]->velocity->y / TICK_PER_SEC;
 	}
 }
 

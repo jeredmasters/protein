@@ -9,6 +9,9 @@ class muscle {
 		joint* a;
 		joint* b;
 		float desiredLength;
+		float osc_range;
+		float osc_pos;
+		bool osc_dir;
 		
 		float strength;
 		muscle();
@@ -17,13 +20,13 @@ class muscle {
 		float length();
 		float angle();
 		float force();
-		muscle(joint* _a, joint* _b, float dl, float s);
+		muscle(joint* _a, joint* _b, float osc, float s);
 };
 
-muscle::muscle(joint* _a, joint* _b, float dl, float s) {
+muscle::muscle(joint* _a, joint* _b, float osc, float s) {
 	a = _a;
 	b = _b;
-	desiredLength = length() + (dl - 122) / 20;
+	desiredLength = length();
 	strength = s;
 }
 

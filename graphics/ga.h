@@ -8,17 +8,19 @@ class ga {
 	private:
 		int size;
 		int length;
+		int selectionPressure;
 		std::vector<uint8_t> crossover(std::vector<uint8_t>* a, std::vector<uint8_t>* b);
 
 	public:
 		std::vector<chromosome*> newGeneration();
 		std::vector<chromosome*> breed(std::vector<chromosome*> population);
 		void mutate(std::vector<chromosome*> * population);
-		ga(int _size, int _length);
+		ga(int _size, int _length, int _selectionPressure);
 };
-ga::ga(int _size, int _length) {
+ga::ga(int _size, int _length, int _selectionPressure) {
 	size = _size;
 	length = _length;
+	selectionPressure = _selectionPressure;
 }
 uint8_t rand8() {
 	return (uint8_t)(rand() % ((255) + 1));
@@ -76,7 +78,7 @@ std::vector<chromosome*> ga::breed(std::vector<chromosome*> population) {
 	int fittest = 0;
 	int total = 0;
 	for (int i = 0; i < size; i++) {
-		population[i]->fittness = pow(population[i]->fittness / 1000, 4);
+		population[i]->fittness = pow(population[i]->fittness / 1000, selectionPressure);
 		int fitness = population[i]->fittness;
 		if (fitness > fittest) {
 			fittest = fitness;
