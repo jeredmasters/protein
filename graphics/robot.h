@@ -2,18 +2,19 @@
 
 #include "muscle.h"
 #include "chromosome.h"
-
-const int TICK_PER_SEC = 1000;
+#include "stdafx.h"
 
 class robot 
 {
 	private:
 		void fittness();
+		void osc();
 		void reaction();
 		void gravity();
 		void momentum();
 		void friction();
 		void floor();
+
 		
 	public:
 		std::vector<joint*> joints;
@@ -31,9 +32,9 @@ robot::robot(chromosome * _gene)
 	alive = false;
 
 	for (int i = 0; i < gene->dna.size() - 4; i += 4) {
-		uint8_t t = gene->dna[0 + i] % 2;
+		uint8_t t = gene->dna[0 + i] % 5;
 
-		if(t == 0) {
+		if(t == 0 || t == 1) {
 			uint8_t a = gene->dna[1 + i];
 			uint8_t b = gene->dna[2 + i];
 			uint8_t c = gene->dna[2 + i];
@@ -49,9 +50,9 @@ robot::robot(chromosome * _gene)
 	}
 
 	for (int i = 0; i < gene->dna.size() - 4; i += 4) {
-		uint8_t t = gene->dna[0 + i] % 2;
+		uint8_t t = gene->dna[0 + i] % 5;
 
-		if (t == 1) {
+		if (t == 2 || t == 3) {
 			uint8_t a = gene->dna[1 + i];
 			uint8_t b = gene->dna[2 + i];
 			uint8_t c = gene->dna[2 + i];
@@ -66,8 +67,22 @@ robot::robot(chromosome * _gene)
 			));
 		}
 	}
+
 	if (muscles.size() < joints.size()) {
 		return;
+	}
+
+	for (int i = 0; i < gene->dna.size() - 4; i += 4) {
+		uint8_t t = gene->dna[0 + i] % 5;
+
+		if (t == 4) {
+			uint8_t a = gene->dna[1 + i];
+			uint8_t b = gene->dna[2 + i];
+			uint8_t c = gene->dna[2 + i];
+			int m_id  = a % muscles.size();
+
+			muscles[m_id]->setOsc(b, c - 122);
+		}
 	}
 
 	int lowest_joint = INT_MAX;
@@ -88,6 +103,7 @@ robot::robot(chromosome * _gene)
 void robot::tick()
 {
 	if (alive) {
+		osc();
 		reaction();
 		gravity();
 		momentum();
@@ -115,18 +131,25 @@ float springForce(float sd){
 	}
 	return sd * 5 + q ;
 }
+void robot::osc() {
+	for (int i = 0; i < muscles.size(); i++) {
+		if (muscles[i]->osc_speed != 0) {
+			muscles[i]->oscTick();
+		}
+	}
+}
 void robot::reaction() {
 	for (int i = 0; i < muscles.size(); i++) {
 		muscle* m = muscles[i];
 		float length = m->length();
-		float delta = length - m->desiredLength;
+		float delta = length - m->desiredLength();
 		float scaled = m->strength * delta;
 		float force = springForce(scaled);
 
 		force = force / TICK_PER_SEC;
 
 		if (force == force && length != 0) { // check for NaN
-			if (force > 10000000) {
+			if (force > 1000000) {
 				cout << "Something went wrong, killing robot for excessive force ";
 				alive = false;
 			}
