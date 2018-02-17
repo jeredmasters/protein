@@ -196,10 +196,13 @@ void robot::friction()
 void robot::floor()
 {
 	for (int i = 0; i < joints.size(); i++) {
-		if (joints[i]->position->y < 0) {
+		if (joints[i]->position->y < -1) {
 			joints[i]->position->y = 0;
-			joints[i]->velocity->y = 0;
-			joints[i]->velocity->x *= 0.98;
+			joints[i]->velocity->y = abs(joints[i]->velocity->y) * 0.3;
+		}
+		if (joints[i]->position->y <= 1) {
+			float friction = (joints[i]->position->y + 1);
+			joints[i]->velocity->x = joints[i]->velocity->x / (pow(friction, 2) + 1);
 		}
 	}
 }
