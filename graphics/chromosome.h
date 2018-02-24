@@ -8,7 +8,7 @@ using namespace std;
 class chromosome {
 	public:
 		std::vector<uint8_t> dna;
-		int fittness;
+		double fittness;
 		chromosome(std::vector<uint8_t> _dna);
 		void dispose();
 };
