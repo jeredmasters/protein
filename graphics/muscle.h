@@ -17,8 +17,8 @@ class muscle {
 		float strength;
 		float dX();
 		float dY();
+		float dZ();
 		double length();
-		float angle();
 		float desiredLength();
 		void oscTick();
 		bool inf();
@@ -31,7 +31,7 @@ muscle::muscle(joint* _a, joint* _b, float osc, float s) {
 	a = _a;
 	b = _b;
 	_desiredLength = length();
-	strength = s;
+	strength = s + 30;
 
 	osc_speed = 0;
 	osc_range = 0;
@@ -62,14 +62,15 @@ float muscle::dY() {
 	return a->position->y - b->position->y;
 }
 
-double muscle::length() {
-	return sqrt(pow(dX(), 2) + pow(dY(), 2));
+float muscle::dZ() {
+	return a->position->z - b->position->z;
 }
 
-float muscle::angle() {
-	return atan(dY() / dX());
+double muscle::length() {
+	float h = sqrt(pow(dX(), 2) + pow(dY(), 2));
+	return sqrt(pow(dZ(), 2) + pow(h, 2));
 }
 
 bool muscle::inf() {
-	return isinf(dX()) || isinf(dY());
+	return isinf(dX()) || isinf(dY()) || isinf(dZ());
 }

@@ -43,8 +43,8 @@ robot::robot(chromosome * _gene)
 			uint8_t b = gene->dna[2 + i];
 			uint8_t c = gene->dna[2 + i];
 			joints.push_back(new joint(
-				new point(a, b),
-				new point(0, 0),
+				new point(a, b, c),
+				new point(0, 0, 0),
 				c
 			));
 		}
@@ -204,15 +204,19 @@ void robot::reaction() {
 
 			float rX = m->dX() / length;
 			float rY = m->dY() / length;
+			float rZ = m->dZ() / length;
 			float accY = rY * force;
 			float accX = rX * force;
+			float accZ = rZ * force;
 			
 			
 			m->a->velocity->x -= accX / m->a->weight;
 			m->a->velocity->y -= accY / m->a->weight;
+			m->a->velocity->z -= accZ / m->a->weight;
 
-			m->b->velocity->x += accX / m->a->weight;
-			m->b->velocity->y += accY / m->a->weight;
+			m->b->velocity->x += accX / m->b->weight;
+			m->b->velocity->y += accY / m->b->weight;
+			m->b->velocity->z += accZ / m->b->weight;
 
 			if (
 				m->inf() ||
@@ -239,6 +243,7 @@ void robot::momentum()
 	for (int i = 0; i < joints.size(); i++) {
 		joints[i]->position->x += joints[i]->velocity->x / TICK_PER_SEC;
 		joints[i]->position->y += joints[i]->velocity->y / TICK_PER_SEC;
+		joints[i]->position->z += joints[i]->velocity->z / TICK_PER_SEC;
 	}
 }
 
@@ -247,6 +252,7 @@ void robot::friction()
 	for (int i = 0; i < joints.size(); i++) {
 		joints[i]->velocity->x *= 0.995;
 		joints[i]->velocity->y *= 0.995;
+		joints[i]->velocity->z *= 0.995;
 	}
 }
 
@@ -258,8 +264,9 @@ void robot::floor()
 			joints[i]->velocity->y = abs(joints[i]->velocity->y) * 0.3;
 		}
 		if (joints[i]->position->y <= 0) {
-			float friction = (joints[i]->position->y + 1);
-			joints[i]->velocity->x = joints[i]->velocity->x / (pow(friction, 2) + 1);
+			float friction = pow(joints[i]->position->y + 1, 2) + 1;
+			joints[i]->velocity->x = joints[i]->velocity->x / friction;
+			joints[i]->velocity->z = joints[i]->velocity->z / friction;
 		}
 	}
 }
