@@ -2,7 +2,8 @@
 
 #include "stdafx.h"
 #include "joint.h"
-#include <math.h> 
+#include <math.h>
+#include <stdexcept>
 
 class muscle {
 	public:
@@ -16,15 +17,17 @@ class muscle {
 		float strength;
 		float dX();
 		float dY();
-		float length();
+		double length();
 		float angle();
 		float desiredLength();
 		void oscTick();
+		bool inf();
 		void setOsc(float _osc_range, float _osc_speed);
 		muscle(joint* _a, joint* _b, float osc, float s);
 };
 
 muscle::muscle(joint* _a, joint* _b, float osc, float s) {
+	
 	a = _a;
 	b = _b;
 	_desiredLength = length();
@@ -41,7 +44,7 @@ void muscle::setOsc(float _osc_range, float _osc_speed) {
 }
 
 void muscle::oscTick() {
-	osc_pos += osc_speed / TICK_PER_SEC;
+	osc_pos += (5 * osc_speed) / TICK_PER_SEC;
 	if (abs(osc_pos) > osc_range) {
 		osc_speed *= -1;
 	}
@@ -59,10 +62,14 @@ float muscle::dY() {
 	return a->position->y - b->position->y;
 }
 
-float muscle::length() {
+double muscle::length() {
 	return sqrt(pow(dX(), 2) + pow(dY(), 2));
 }
 
 float muscle::angle() {
 	return atan(dY() / dX());
+}
+
+bool muscle::inf() {
+	return isinf(dX()) || isinf(dY());
 }

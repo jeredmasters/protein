@@ -3,11 +3,13 @@
 #include "muscle.h"
 #include "chromosome.h"
 #include "stdafx.h"
+#include "timer_collection.h"
 
 class robot 
 {
 	private:
-		void fittness();
+		void validate();
+		
 		void osc();
 		void reaction();
 		void gravity();
@@ -20,16 +22,18 @@ class robot
 		std::vector<joint*> joints;
 		std::vector<muscle*> muscles;
 		robot(chromosome * _gene);
-		void tick();
+		void tick(timer_collection* timers);
 		bool alive;
 		chromosome * gene;
 		void dispose();
+		double fittness();
 };
 
 robot::robot(chromosome * _gene)
 {
 	gene = _gene;
 	alive = false;
+	gene->fittness = 0;
 
 	for (int i = 0; i < gene->dna.size() - 4; i += 4) {
 		uint8_t t = gene->dna[0 + i] % 5;
@@ -94,38 +98,80 @@ robot::robot(chromosome * _gene)
 	for (int i = 0; i < joints.size(); i++) {
 		joints[i]->position->y -= lowest_joint;
 	}
+	for (int i = 0; i < muscles.size(); i++) {
+		if (muscles[i]->a == muscles[i]->b) {
+			return;
+		}
+	}
 
+	validate();
 	
 	alive = true;
 }
 
 
-void robot::tick()
+void robot::tick(timer_collection* timers)
 {
 	if (alive) {
+		timers->osc.start();
 		osc();
+		timers->osc.stop();
+
+
+		timers->reaction.start();
 		reaction();
+		timers->reaction.stop();
+
+
+		timers->gravity.start();
 		gravity();
+		timers->gravity.stop();
+
+
+		timers->momentum.start();
 		momentum();
-		friction();
+		timers->momentum.stop();
+
+
+		timers->friction.start();
+		friction();		
+		timers->friction.stop();
+
+
+		timers->floor.start();
 		floor();		
+		timers->floor.stop();
 	}
-	fittness();
+
 }
-void robot::fittness() {
-	int max = 0;
-	if (alive) {
-		for (int i = 0; i < joints.size(); i++) {
-			int val = joints[i]->position->x * joints[i]->position->y;
-			if (val > max) {
-				max = val;
-			}
+void robot::validate() {
+	for (int i = 0; i < joints.size(); i++) {
+		if (joints[i]->inf()) {
+			cout << "INF; Killing robot :(\n";
+			alive = false;
+			gene->fittness = 0;
 		}
 	}
-	gene->fittness = max;
+	for (int i = 0; i < muscles.size(); i++) {
+		if (muscles[i]->inf()) {
+			cout << "INF; Killing robot :(\n";
+			alive = false;
+			gene->fittness = 0;
+		}
+	}
 }
-float springForce(float sd){
-	float q = pow(sd / 5, 2);
+double robot::fittness() {
+	double total = 0;
+	if (alive) {
+		for (int i = 0; i < joints.size(); i++) {
+			total += (joints[i]->position->x * joints[i]->position->y);
+		}
+	}
+	gene->fittness = total / joints.size();
+	return gene->fittness;
+}
+double springForce(float sd){
+	float q = pow(sd / 4, 2);
 	if (sd < 0) {
 		q *= -1;
 	}
@@ -141,17 +187,18 @@ void robot::osc() {
 void robot::reaction() {
 	for (int i = 0; i < muscles.size(); i++) {
 		muscle* m = muscles[i];
-		float length = m->length();
+		double length = m->length();
 		float delta = length - m->desiredLength();
 		float scaled = m->strength * delta;
-		float force = springForce(scaled);
+		double force = springForce(scaled);
 
 		force = force / TICK_PER_SEC;
 
 		if (force == force && length != 0) { // check for NaN
 			if (force > 1000000) {
-				cout << "Something went wrong, killing robot for excessive force ";
+				cout << "Something went wrong, killing robot for excessive force: " << force << "\n";
 				alive = false;
+				gene->fittness = 0;
 			}
 			
 
@@ -159,13 +206,23 @@ void robot::reaction() {
 			float rY = m->dY() / length;
 			float accY = rY * force;
 			float accX = rX * force;
-
 			
-			m->a->velocity->x -= (accX / 1000) / m->a->weight;
+			
+			m->a->velocity->x -= accX / m->a->weight;
 			m->a->velocity->y -= accY / m->a->weight;
 
 			m->b->velocity->x += accX / m->a->weight;
 			m->b->velocity->y += accY / m->a->weight;
+
+			if (
+				m->inf() ||
+				m->a->inf() ||
+				m->b->inf()
+				) {
+				cout << "INF; Killing robot :(\n";
+				alive = false;
+				gene->fittness = 0;
+			}
 		}
 	}
 }
@@ -200,7 +257,7 @@ void robot::floor()
 			joints[i]->position->y = 0;
 			joints[i]->velocity->y = abs(joints[i]->velocity->y) * 0.3;
 		}
-		if (joints[i]->position->y <= 1) {
+		if (joints[i]->position->y <= 0) {
 			float friction = (joints[i]->position->y + 1);
 			joints[i]->velocity->x = joints[i]->velocity->x / (pow(friction, 2) + 1);
 		}
@@ -216,6 +273,6 @@ void robot::dispose() {
 		delete muscles[i];
 	}
 	muscles.clear();
-	gene->dispose();
-	delete gene;
+	// gene->dispose();
+	// delete gene;
 }

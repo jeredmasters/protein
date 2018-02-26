@@ -19,7 +19,7 @@ class renderer {
 	
 	public:
 		renderer(int height, int width);
-		void update(std::vector<robot*> robots);
+		void update(std::vector<robot*>* robots);
 		void drawRobot(robot * r);
 		void drawJoint(point * p, int weight);
 		void drawLine(point * a, point * b, int strength);
@@ -33,7 +33,7 @@ renderer::renderer(int height, int width) :
 
 }
 
-void renderer::update(std::vector<robot*> robots) {
+void renderer::update(std::vector<robot*>* robots) {
 	
 
 	sf::Event event;
@@ -46,9 +46,9 @@ void renderer::update(std::vector<robot*> robots) {
 
 	_window.clear();
 	
-	for (int i = 0; i < robots.size(); i++) {
-		if (robots[i]->alive) {
-			drawRobot(robots[i]);
+	for (int i = 0; i < robots->size(); i++) {
+		if (robots[0][i]->alive) {
+			drawRobot(robots[0][i]);
 		}
 	}
 	
@@ -73,8 +73,10 @@ void renderer::drawRobot(robot * r) {
 void renderer::drawJoint(point * p, int weight) {
 	float radius = 4.f;
 
+	sf::Color c = sf::Color(50, 255 - weight, 50, 255);
+
 	sf::CircleShape shape(radius);
-	shape.setFillColor(sf::Color::Green);
+	shape.setFillColor(c);
 	shape.setPosition(p->x - radius, modY(p->y) - radius);
 	_window.draw(shape);
 }

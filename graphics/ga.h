@@ -10,11 +10,13 @@ class ga {
 		int length;
 		int selectionPressure;
 		std::vector<uint8_t> crossover(std::vector<uint8_t>* a, std::vector<uint8_t>* b);
+		std::vector<uint8_t>* choose(std::vector<chromosome*>* population, int max);
+		std::vector<uint8_t>* newDna();
 
 	public:
 		std::vector<chromosome*> newGeneration();
-		std::vector<chromosome*> breed(std::vector<chromosome*> population);
-		void mutate(std::vector<chromosome*> * population);
+		std::vector<chromosome*> breed(std::vector<chromosome*>* population);
+		void mutate(std::vector<chromosome*> * population, int generation);
 		ga(int _size, int _length, int _selectionPressure);
 };
 ga::ga(int _size, int _length, int _selectionPressure) {
@@ -28,14 +30,15 @@ uint8_t rand8() {
 int randVal(int max) {
 	return (rand() % (max + 1));
 }
-std::vector<uint8_t>* choose(std::vector<chromosome*> population, int max) {
+std::vector<uint8_t>* ga::choose(std::vector<chromosome*>* population, int max) {
 	int v = randVal(max);
-	for (int i = 0; i < population.size(); i++) {
-		v -= population[i]->fittness;
+	for (int i = 0; i < population->size(); i++) {
+		v -= population[0][i]->fittness;
 		if (v < 0) {
-			return &population[i]->dna;
+			return &population[0][i]->dna;
 		}
 	}
+	return newDna();
 }
 
 std::vector<uint8_t> ga::crossover(std::vector<uint8_t>* a, std::vector<uint8_t>* b) {
@@ -58,35 +61,41 @@ std::vector<uint8_t> ga::crossover(std::vector<uint8_t>* a, std::vector<uint8_t>
 	return retval;
 }
 
+std::vector<uint8_t>* ga::newDna(){
+	std::vector<uint8_t>* dna = new std::vector<uint8_t>;
+	dna->reserve(length);
+	for (int j = 0; j < length; j++) {
+		dna->push_back(rand8());
+	}
+	return dna;
+}
+
 std::vector<chromosome*> ga::newGeneration() {
 	srand(time(NULL));
 	std::vector<chromosome*> population;
 	population.reserve(size);
 	for (int i = 0; i < size; i++) {
-		std::vector<uint8_t> dna;
-		dna.reserve(length);
-		for (int j = 0; j < length; j++) {
-			dna.push_back(rand8());
-		}
-		population.push_back(new chromosome(dna));
+		
+		population.push_back(new chromosome(*newDna()));
 	}
 	return population;
 }
 
-std::vector<chromosome*> ga::breed(std::vector<chromosome*> population) {
+std::vector<chromosome*> ga::breed(std::vector<chromosome*>* population) {
 	srand(time(NULL));
 	int fittest = 0;
 	int total = 0;
 	for (int i = 0; i < size; i++) {
-		population[i]->fittness = pow(population[i]->fittness / 1000, selectionPressure);
-		int fitness = population[i]->fittness;
+		population[0][i]->fittness = pow(population[0][i]->fittness / 1000, selectionPressure);
+		int fitness = population[0][i]->fittness;
 		if (fitness > fittest) {
 			fittest = fitness;
 		}
 		total += fitness;
 	}
 
-	if (fittest == 0) {
+	if (fittest <= 10) {
+
 		return newGeneration();
 	}
 
@@ -99,19 +108,19 @@ std::vector<chromosome*> ga::breed(std::vector<chromosome*> population) {
 		chromosome * d = new chromosome(c);
 		nextGeneration.push_back(d);
 	}
-	for (int i = 0; i < population.size(); i++) {
-		population[i]->dispose();
+	for (int i = 0; i < population->size(); i++) {
+		population[0][i]->dispose();
 	}
-	population.clear();
+	population->clear();
 	return nextGeneration;
 }
 
-void ga::mutate(std::vector<chromosome*> * population) {
+void ga::mutate(std::vector<chromosome*> * population, int generation) {
 	for (int i = 0; i < size; i++) {
 		std::vector<uint8_t> * dna = &population[0][i]->dna;
 		for (int j = 0; j < length; j++) {
-			if (randVal(40) == 0) {
-				dna[0][j] += (randVal(20) - 10);
+			if (randVal(generation) == 0) {
+				dna[0][j] += (randVal(100) - 10);
 			}
 		}
 	}

@@ -7,14 +7,32 @@ class joint {
 	public:
 		point* position;
 		point* velocity;
+		point* force;
 		int weight;
-		joint();		
 		joint(point* pos, point* vel, int w);
-		int fittness();
+		void dispose();
+		bool inf();
 };
 
 joint::joint(point* pos, point* vel, int w) {
 	position = pos;
 	velocity = vel;
-	weight = w;
+	weight = w + 30;
+	force = new point(0, 0);
+}
+
+void joint::dispose() {
+	delete position;
+	delete velocity;
+	delete force;
+}
+
+bool joint::inf() {
+	return
+		isinf(position->x) ||
+		isinf(position->y) ||
+		isinf(velocity->x) ||
+		isinf(velocity->y) ||
+		isinf(force->x) ||
+		isinf(force->y);
 }
