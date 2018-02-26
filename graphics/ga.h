@@ -94,7 +94,7 @@ std::vector<chromosome*> ga::breed(std::vector<chromosome*>* population) {
 		total += fitness;
 	}
 
-	if (fittest <= 10) {
+	if (fittest <= 0) {
 
 		return newGeneration();
 	}
@@ -119,8 +119,10 @@ void ga::mutate(std::vector<chromosome*> * population, int generation) {
 	for (int i = 0; i < size; i++) {
 		std::vector<uint8_t> * dna = &population[0][i]->dna;
 		for (int j = 0; j < length; j++) {
-			if (randVal(generation) == 0) {
-				dna[0][j] += (randVal(100) - 10);
+			if ((int)sqrt(randVal(generation + 10)) == 0) {
+				float r = (randVal(100) - 50);
+				r = sqrt(r);
+				dna[0][j] += (int)r % 255;
 			}
 		}
 	}

@@ -36,16 +36,16 @@ robot::robot(chromosome * _gene)
 	gene->fittness = 0;
 
 	for (int i = 0; i < gene->dna.size() - 4; i += 4) {
-		uint8_t t = gene->dna[0 + i] % 5;
+		uint8_t t = gene->dna[0 + i] % 6;
 
 		if(t == 0 || t == 1) {
 			uint8_t a = gene->dna[1 + i];
 			uint8_t b = gene->dna[2 + i];
-			uint8_t c = gene->dna[2 + i];
+			uint8_t c = gene->dna[3 + i];
 			joints.push_back(new joint(
-				new point(a, b, c),
+				new point(a, b, c - 125),
 				new point(0, 0, 0),
-				c
+				150
 			));
 		}
 	}
@@ -54,12 +54,12 @@ robot::robot(chromosome * _gene)
 	}
 
 	for (int i = 0; i < gene->dna.size() - 4; i += 4) {
-		uint8_t t = gene->dna[0 + i] % 5;
+		uint8_t t = gene->dna[0 + i] % 6;
 
-		if (t == 2 || t == 3) {
+		if (t == 2 || t == 3 || t == 4) {
 			uint8_t a = gene->dna[1 + i];
 			uint8_t b = gene->dna[2 + i];
-			uint8_t c = gene->dna[2 + i];
+			uint8_t c = gene->dna[3 + i];
 			int j_a = (muscles.size() + 1) % joints.size();
 			int j_b = a % joints.size();
 
@@ -77,12 +77,12 @@ robot::robot(chromosome * _gene)
 	}
 
 	for (int i = 0; i < gene->dna.size() - 4; i += 4) {
-		uint8_t t = gene->dna[0 + i] % 5;
+		uint8_t t = gene->dna[0 + i] % 6;
 
-		if (t == 4) {
+		if (t == 5) {
 			uint8_t a = gene->dna[1 + i];
 			uint8_t b = gene->dna[2 + i];
-			uint8_t c = gene->dna[2 + i];
+			uint8_t c = gene->dna[3 + i];
 			int m_id  = a % muscles.size();
 
 			muscles[m_id]->setOsc(b, c - 122);
