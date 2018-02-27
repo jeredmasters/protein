@@ -119,9 +119,9 @@ void ga::mutate(std::vector<chromosome*> * population, int generation) {
 	for (int i = 0; i < size; i++) {
 		std::vector<uint8_t> * dna = &population[0][i]->dna;
 		for (int j = 0; j < length; j++) {
-			if ((int)sqrt(randVal(generation + 10)) == 0) {
+			if ((int)randVal(sqrt(generation) * 2) == 0) {
 				float r = (randVal(100) - 50);
-				r = sqrt(r);
+				r = sqrt(r) * 2;
 				dna[0][j] += (int)r % 255;
 			}
 		}

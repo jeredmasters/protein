@@ -22,6 +22,7 @@ class robot
 		std::vector<joint*> joints;
 		std::vector<muscle*> muscles;
 		robot(chromosome * _gene);
+		void tick();
 		void tick(timer_collection* timers);
 		bool alive;
 		chromosome * gene;
@@ -36,9 +37,9 @@ robot::robot(chromosome * _gene)
 	gene->fittness = 0;
 
 	for (int i = 0; i < gene->dna.size() - 4; i += 4) {
-		uint8_t t = gene->dna[0 + i] % 6;
+		uint8_t t = gene->dna[0 + i] % 8;
 
-		if(t == 0 || t == 1) {
+		if(t >= 0 && t <= 2) {
 			uint8_t a = gene->dna[1 + i];
 			uint8_t b = gene->dna[2 + i];
 			uint8_t c = gene->dna[3 + i];
@@ -54,9 +55,9 @@ robot::robot(chromosome * _gene)
 	}
 
 	for (int i = 0; i < gene->dna.size() - 4; i += 4) {
-		uint8_t t = gene->dna[0 + i] % 6;
+		uint8_t t = gene->dna[0 + i] % 8;
 
-		if (t == 2 || t == 3 || t == 4) {
+		if (t >= 3 && t <= 6) {
 			uint8_t a = gene->dna[1 + i];
 			uint8_t b = gene->dna[2 + i];
 			uint8_t c = gene->dna[3 + i];
@@ -77,9 +78,9 @@ robot::robot(chromosome * _gene)
 	}
 
 	for (int i = 0; i < gene->dna.size() - 4; i += 4) {
-		uint8_t t = gene->dna[0 + i] % 6;
+		uint8_t t = gene->dna[0 + i] % 8;
 
-		if (t == 5) {
+		if (t == 7) {
 			uint8_t a = gene->dna[1 + i];
 			uint8_t b = gene->dna[2 + i];
 			uint8_t c = gene->dna[3 + i];
@@ -110,6 +111,17 @@ robot::robot(chromosome * _gene)
 }
 
 
+void robot::tick()
+{
+	if (alive) {
+		osc();
+		reaction();
+		gravity();
+		momentum();
+		friction();
+		floor();
+	}
+}
 void robot::tick(timer_collection* timers)
 {
 	if (alive) {
@@ -134,12 +146,12 @@ void robot::tick(timer_collection* timers)
 
 
 		timers->friction.start();
-		friction();		
+		friction();
 		timers->friction.stop();
 
 
 		timers->floor.start();
-		floor();		
+		floor();
 		timers->floor.stop();
 	}
 
@@ -171,7 +183,7 @@ double robot::fittness() {
 	return gene->fittness;
 }
 double springForce(float sd){
-	float q = pow(sd / 4, 2);
+	float q = pow(sd / 3, 2);
 	if (sd < 0) {
 		q *= -1;
 	}
