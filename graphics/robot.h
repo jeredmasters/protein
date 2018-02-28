@@ -41,7 +41,7 @@ robot::robot(chromosome * _gene)
 		if(t == 0 || t == 1) {
 			uint8_t a = gene->dna[1 + i];
 			uint8_t b = gene->dna[2 + i];
-			uint8_t c = gene->dna[2 + i];
+			uint8_t c = gene->dna[3 + i];
 			joints.push_back(new joint(
 				new point(a, b),
 				new point(0, 0),
@@ -59,7 +59,7 @@ robot::robot(chromosome * _gene)
 		if (t == 2 || t == 3) {
 			uint8_t a = gene->dna[1 + i];
 			uint8_t b = gene->dna[2 + i];
-			uint8_t c = gene->dna[2 + i];
+			uint8_t c = gene->dna[3 + i];
 			int j_a = (muscles.size() + 1) % joints.size();
 			int j_b = a % joints.size();
 
@@ -82,7 +82,7 @@ robot::robot(chromosome * _gene)
 		if (t == 4) {
 			uint8_t a = gene->dna[1 + i];
 			uint8_t b = gene->dna[2 + i];
-			uint8_t c = gene->dna[2 + i];
+			uint8_t c = gene->dna[3 + i];
 			int m_id  = a % muscles.size();
 
 			muscles[m_id]->setOsc(b, c - 122);
@@ -211,8 +211,8 @@ void robot::reaction() {
 			m->a->velocity->x -= accX / m->a->weight;
 			m->a->velocity->y -= accY / m->a->weight;
 
-			m->b->velocity->x += accX / m->a->weight;
-			m->b->velocity->y += accY / m->a->weight;
+			m->b->velocity->x += accX / m->b->weight;
+			m->b->velocity->y += accY / m->b->weight;
 
 			if (
 				m->inf() ||
