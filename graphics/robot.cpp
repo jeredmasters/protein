@@ -23,7 +23,6 @@ robot::robot(chromosome * _gene)
 		}
 	}
 	if (joints.size() == 0) {
-		dispose();
 		return;
 	}
 
@@ -47,7 +46,6 @@ robot::robot(chromosome * _gene)
 	}
 
 	if (muscles.size() < joints.size()) {
-		dispose();
 		return;
 	}
 
@@ -75,7 +73,6 @@ robot::robot(chromosome * _gene)
 	}
 	for (int i = 0; i < muscles.size(); i++) {
 		if (muscles[i]->a == muscles[i]->b) {
-			dispose();
 			return;
 		}
 	}
@@ -252,9 +249,8 @@ void robot::floor()
 	}
 }
 
-void robot::dispose() {
+robot::~robot() {
 	for (int i = 0; i < joints.size(); i++) {
-		joints[i]->dispose();
 		delete joints[i];
 	}
 	joints.clear();

@@ -10,7 +10,7 @@ joint::joint(point* pos, int w) {
 	force = new point(0, 0);
 }
 
-void joint::dispose() {
+joint::~joint() {
 	delete position;
 	delete velocity;
 	delete force;

@@ -12,7 +12,8 @@ public:
 	double fittness;
 	chromosome(string str);
 	chromosome(std::vector<uint8_t> _dna);
-	void dispose();
+	~chromosome();
 	std::string toString();
+
 };
 

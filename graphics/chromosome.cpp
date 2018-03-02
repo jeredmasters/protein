@@ -32,6 +32,6 @@ std::string chromosome::toString() {
 	return ss.str();
 }
 
-void chromosome::dispose() {
+chromosome::~chromosome() {
 	dna.clear();
 }

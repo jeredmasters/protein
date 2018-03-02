@@ -90,8 +90,6 @@ void ga::breed(std::vector<chromosome*>* population) {
 		return;
 	}
 
-	std::vector<chromosome*> nextGeneration;
-	nextGeneration.reserve(_size);
 	for (int i = 0; i < _size; i++) {
 		std::vector<uint8_t>* a = choose(total);
 		std::vector<uint8_t>* b = choose(total);
@@ -99,7 +97,7 @@ void ga::breed(std::vector<chromosome*>* population) {
 		population[0][i] = new chromosome(c);
 	}
 	for (int i = 0; i < population->size(); i++) {
-		_temp[i]->dispose();
+		delete _temp[i];
 	}
 	_temp.clear();
 }

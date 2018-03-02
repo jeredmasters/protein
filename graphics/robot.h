@@ -21,10 +21,10 @@ class robot
 		std::vector<joint*> joints;
 		std::vector<muscle*> muscles;
 		robot(chromosome * _gene);
+		~robot();
 		void tick();
 		void tick(timer_collection* timers);
 		bool alive;
 		chromosome * gene;
-		void dispose();
 		double fittness();
 };

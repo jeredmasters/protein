@@ -10,6 +10,6 @@ class joint {
 		point* force;
 		int weight;
 		joint(point* pos, int w);
-		void dispose();
+		~joint();
 		bool inf();
 };
