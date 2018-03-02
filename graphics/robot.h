@@ -22,6 +22,7 @@ class robot
 		std::vector<joint*> joints;
 		std::vector<muscle*> muscles;
 		robot(chromosome * _gene);
+		void tick();
 		void tick(timer_collection* timers);
 		bool alive;
 		chromosome * gene;
@@ -110,6 +111,18 @@ robot::robot(chromosome * _gene)
 }
 
 
+void robot::tick()
+{
+	if (alive) {
+		osc();
+		reaction();
+		gravity();
+		momentum();
+		friction();
+		floor();
+	}
+
+}
 void robot::tick(timer_collection* timers)
 {
 	if (alive) {

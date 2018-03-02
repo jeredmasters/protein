@@ -120,7 +120,7 @@ void ga::mutate(std::vector<chromosome*> * population, int generation) {
 		std::vector<uint8_t> * dna = &population[0][i]->dna;
 		for (int j = 0; j < length; j++) {
 			if (randVal(generation) == 0) {
-				dna[0][j] += (randVal(100) - 10);
+				dna[0][j] += (dna[0][j] + randVal(100) + (255 - 50)) % 255;
 			}
 		}
 	}
