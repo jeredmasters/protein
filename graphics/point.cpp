@@ -1,8 +1,10 @@
-#include "stdafx.h"
-#include "point.h"
 
-class point {
-	public:
-		float x;
-		float y;
-};
+#include "stdafx.h"
+
+point::point() {
+}
+point::point(float _x, float _y) {
+	x = _x;
+	y = _y;
+}
+
