@@ -3,6 +3,7 @@
 #include "muscle.h"
 #include "chromosome.h"
 #include "timer_collection.h"
+#include <SFML/Graphics.hpp>
 
 class robot 
 {
@@ -26,5 +27,6 @@ class robot
 		void tick(timer_collection* timers);
 		bool alive;
 		chromosome * gene;
-		double fittness();
+		long fittness();
+		sf::Color tag;
 };

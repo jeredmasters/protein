@@ -9,7 +9,8 @@ using namespace std;
 class chromosome {
 public:
 	std::vector<uint8_t> dna;
-	double fittness;
+	long fittness;
+	long weighted_rank;
 	chromosome(string str);
 	chromosome(std::vector<uint8_t> _dna);
 	~chromosome();

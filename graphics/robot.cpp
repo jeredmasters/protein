@@ -92,6 +92,7 @@ void robot::tick()
 		momentum();
 		friction();
 		floor();
+		fittness();
 	}
 
 }
@@ -145,22 +146,27 @@ void robot::validate() {
 		}
 	}
 }
-double robot::fittness() {
-	double total = 0;
+long robot::fittness() {
+	long total = 0;
 	if (alive) {
 		for (int i = 0; i < joints.size(); i++) {
-			total += (joints[i]->position->x * joints[i]->position->y);
+			total += (joints[i]->position->x * joints[i]->position->y) ;
 		}
 	}
-	gene->fittness = total / joints.size();
+	if (total <= 0) {
+		gene->fittness = 0;
+	}
+	else {
+		gene->fittness = total / joints.size();
+	}
 	return gene->fittness;
 }
 double springForce(float sd) {
-	float q = pow(sd / 4, 2);
+	float q = pow(sd / 3, 2);
 	if (sd < 0) {
 		q *= -1;
 	}
-	return sd * 5 + q;
+	return sd * 5 + q * 2;
 }
 void robot::osc() {
 	for (int i = 0; i < muscles.size(); i++) {
@@ -180,7 +186,7 @@ void robot::reaction() {
 		force = force / TICK_PER_SEC;
 
 		if (force == force && length != 0) { // check for NaN
-			if (force > 1000000) {
+			if (force > 1e10) {
 				cout << "Something went wrong, killing robot for excessive force: " << force << "\n";
 				alive = false;
 				gene->fittness = 0;
@@ -193,11 +199,11 @@ void robot::reaction() {
 			float accX = rX * force;
 
 
-			m->a->velocity->x -= accX / m->a->weight;
-			m->a->velocity->y -= accY / m->a->weight;
+			m->a->velocity->x -= accX / (m->a->weight * 2);
+			m->a->velocity->y -= accY / (m->a->weight * 2);
 
-			m->b->velocity->x += accX / m->b->weight;
-			m->b->velocity->y += accY / m->b->weight;
+			m->b->velocity->x += accX / (m->b->weight * 2);
+			m->b->velocity->y += accY / (m->b->weight * 2);
 
 			if (
 				m->inf() ||
@@ -230,21 +236,23 @@ void robot::momentum()
 void robot::friction()
 {
 	for (int i = 0; i < joints.size(); i++) {
-		joints[i]->velocity->x *= 0.995;
-		joints[i]->velocity->y *= 0.995;
+		joints[i]->velocity->x *= 0.998;
+		joints[i]->velocity->y *= 0.998;
 	}
 }
 
 void robot::floor()
 {
+	float impact;
+	float friction;
 	for (int i = 0; i < joints.size(); i++) {
-		if (joints[i]->position->y < -1) {
+		if (joints[i]->position->y <= 0) {
+			impact = 1 - (joints[i]->position->y + 1);
+			friction = pow(impact * 5, 2);
+			joints[i]->velocity->x = joints[i]->velocity->x / (friction + 1);
+
 			joints[i]->position->y = 0;
 			joints[i]->velocity->y = abs(joints[i]->velocity->y) * 0.3;
-		}
-		if (joints[i]->position->y <= 0) {
-			float friction = (joints[i]->position->y + 1);
-			joints[i]->velocity->x = joints[i]->velocity->x / (pow(friction, 2) + 1);
 		}
 	}
 }
@@ -258,6 +266,4 @@ robot::~robot() {
 		delete muscles[i];
 	}
 	muscles.clear();
-	// gene->dispose();
-	// delete gene;
 }

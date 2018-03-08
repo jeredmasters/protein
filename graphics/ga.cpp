@@ -1,18 +1,24 @@
 #pragma once
 
 #include "stdafx.h"
+#include <algorithm>
 
-ga::ga(int size, int length, int selectionPressure) {
+
+ga::ga(int size, int length, int selectionPressure) :
+	generator(rd()),
+	distribution(0, LONG_MAX)
+{
 	_size = size;
 	_length = length;
 	_selectionPressure = selectionPressure;
 	_temp.reserve(_size);
+	_forcedSuccess = true;
 }
 uint8_t rand8() {
 	return (uint8_t)(rand() % ((255) + 1));
 }
-int randVal(int max) {
-	return (rand() % (max + 1));
+long ga::randVal(long max) {
+	return (distribution(generator) % (max + 1));
 }
 
 
@@ -58,52 +64,68 @@ std::vector<chromosome*> ga::newGeneration() {
 std::vector<uint8_t>* ga::choose(int max) {
 	int v = randVal(max);
 	for (int i = 0; i < _length; i++) {
-		v -= _temp[i]->fittness;
+		v -= _temp[i]->weighted_rank;
 		if (v < 0) {
 			return &_temp[i]->dna;
 		}
 	}
 	return newDna();
 }
+bool sortGene(chromosome* a, chromosome* b) { return (a->fittness > b->fittness); }
 void ga::breed(std::vector<chromosome*>* population) {
+	std::sort(population->begin(), population->end(), sortGene);
 	for (int i = 0; i < _size; i++) {
 		_temp.push_back(population[0][i]);
 	}
 
 	srand(time(NULL));
-	int fittest = 0;
-	int total = 0;
+	long fittest = 0;
+	long total = 0;
 	for (int i = 0; i < _size; i++) {
-		_temp[i]->fittness = pow(_temp[i]->fittness / 1000, _selectionPressure);
-		int fitness = _temp[i]->fittness;
-		if (fitness > fittest) {
-			fittest = fitness;
+		if (_temp[i]->fittness > 0) {
+			_temp[i]->weighted_rank = pow(_size - i, _selectionPressure);
+			//_temp[i]->fittness = 100;
+			long fitness = _temp[i]->weighted_rank;
+			if (fitness > fittest) {
+				fittest = fitness;
+			}
+			total += fitness;
 		}
-		total += fitness;
+		else {
+			_temp[i]->weighted_rank = 0;
+		}
 	}
 
-	if (fittest <= 10) {
+	if (fittest <= 0) {
+		for (int i = 0; i < _size; i++) {
+			if (_temp[i]->fittness > 0) {
+				cout << "FALSE REGRESSION!!\n";
+			}
+		}
 		_temp = newGeneration();
 		for (int i = 0; i < _size; i++) {
 			population[0][i] = _temp[i];
 		}
+		cout << "REGRESSION!!\n";
 		return;
 	}
-
-	for (int i = 0; i < _size; i++) {
+	if (_forcedSuccess) {
+		population[0][0] = _temp[0];
+	}
+	for (int i = (_forcedSuccess ? 1 : 0); i < _size; i++) {
 		std::vector<uint8_t>* a = choose(total);
 		std::vector<uint8_t>* b = choose(total);
 		std::vector<uint8_t> c = crossover(a, b);
 		population[0][i] = new chromosome(c);
 	}
-	for (int i = 0; i < population->size(); i++) {
+	for (int i = (_forcedSuccess ? 1 : 0); i < population->size(); i++) {
 		delete _temp[i];
 	}
 	_temp.clear();
 }
 
 void ga::mutate(std::vector<chromosome*> * population, int generation) {
-	for (int i = 0; i < _size; i++) {
+	for (int i = (_forcedSuccess ? 1 : 0); i < _size; i++) {
 		std::vector<uint8_t> * dna = &population[0][i]->dna;
 		for (int j = 0; j < _length; j++) {
 			if (randVal(generation) == 0) {

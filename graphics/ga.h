@@ -1,6 +1,7 @@
 #pragma once
 
 #include "chromosome.h"
+#include <random>
 
 using namespace std;
 
@@ -13,6 +14,11 @@ class ga {
 		std::vector<uint8_t> crossover(std::vector<uint8_t>* a, std::vector<uint8_t>* b);
 		std::vector<uint8_t>* choose(int max);
 		std::vector<uint8_t>* newDna();
+		std::random_device rd;
+		std::default_random_engine generator;
+		std::uniform_int_distribution<long> distribution;
+		long randVal(long max);
+		bool _forcedSuccess;
 
 	public:
 		std::vector<chromosome*> newGeneration();
