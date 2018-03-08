@@ -12,7 +12,9 @@ class renderer {
 		sf::RenderWindow _window;
 		int _height;
 		int _width;
+		int _offsetX;
 		float modY(float y);
+		float modX(float x);
 	
 	public:
 		renderer(int height, int width);

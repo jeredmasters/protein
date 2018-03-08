@@ -11,7 +11,7 @@ renderer::renderer(int height, int width) :
 	_height(height),
 	_width(width)
 {
-
+	_offsetX = 0;
 }
 
 void renderer::update(std::vector<robot*>* robots) {
@@ -22,6 +22,13 @@ void renderer::update(std::vector<robot*>* robots) {
 	{
 		if (event.type == sf::Event::Closed)
 			_window.close();
+
+		switch (event.type) {
+			case sf::Event::Closed:
+				_window.close();
+			case sf::Event::MouseWheelScrolled:
+				_offsetX += event.mouseWheelScroll.delta * 5;
+		}
 	}
 
 
@@ -38,6 +45,8 @@ void renderer::update(std::vector<robot*>* robots) {
 	robots[0][0]->tag = sf::Color(50, 50, 255, 255);
 	robots[0][fittext_index]->tag = sf::Color(50, 200, 200, 255);
 
+	drawLine(new point(0, 0), new point(0, _height), sf::Color(255, 255, 255, 255));
+
 	for (int i = 0; i < robots->size(); i++) {
 		if (robots[0][i]->alive) {
 			drawRobot(robots[0][i]);
@@ -50,6 +59,10 @@ void renderer::update(std::vector<robot*>* robots) {
 
 float renderer::modY(float y) {
 	return _height - (y + 20);
+}
+
+float renderer::modX(float x) {
+	return x - _offsetX;
 }
 
 void renderer::drawRobot(robot * r, sf::Color tag) {
@@ -93,7 +106,7 @@ void renderer::drawJoint(point * p, int weight) {
 
 	sf::CircleShape shape(radius);
 	shape.setFillColor(c);
-	shape.setPosition(p->x - radius, modY(p->y) - radius);
+	shape.setPosition(modX(p->x - radius), modY(p->y) - radius);
 	_window.draw(shape);
 }
 
@@ -107,8 +120,8 @@ void renderer::drawLine(point * a, point * b, sf::Color c) {
 	
 	sf::Vertex line[] =
 	{
-		sf::Vertex(sf::Vector2f(a->x, modY(a->y))),
-		sf::Vertex(sf::Vector2f(b->x, modY(b->y)))
+		sf::Vertex(sf::Vector2f(modX(a->x), modY(a->y))),
+		sf::Vertex(sf::Vector2f(modX(b->x), modY(b->y)))
 	};
 
 	line[0].color = c;
