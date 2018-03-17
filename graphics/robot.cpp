@@ -34,7 +34,7 @@ robot::robot(chromosome * _gene)
 			uint8_t b = gene->dna[2 + i];
 			uint8_t c = gene->dna[3 + i];
 			int j_a = (muscles.size() + 1) % joints.size();
-			int j_b = a % joints.size();
+			int j_b = (a / 3) % joints.size();
 
 			muscles.push_back(new muscle(
 				joints[j_a],
@@ -56,7 +56,7 @@ robot::robot(chromosome * _gene)
 			uint8_t a = gene->dna[1 + i];
 			uint8_t b = gene->dna[2 + i];
 			uint8_t c = gene->dna[3 + i];
-			int m_id = a % muscles.size();
+			int m_id = (a / 3) % muscles.size();
 
 			muscles[m_id]->setOsc(b, c - 122);
 		}

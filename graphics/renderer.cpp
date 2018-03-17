@@ -11,7 +11,9 @@ renderer::renderer(int height, int width) :
 	_height(height),
 	_width(width)
 {
-	_offsetX = 0;
+	_offsetX = -250;
+	_zeroA = new point(0, 0);
+	_zeroB = new point(0, _height);
 }
 
 void renderer::update(std::vector<robot*>* robots) {
@@ -45,7 +47,7 @@ void renderer::update(std::vector<robot*>* robots) {
 	robots[0][0]->tag = sf::Color(50, 50, 255, 255);
 	robots[0][fittext_index]->tag = sf::Color(50, 200, 200, 255);
 
-	drawLine(new point(0, 0), new point(0, _height), sf::Color(255, 255, 255, 255));
+	drawLine(_zeroA, _zeroB, sf::Color(255, 255, 255, 255));
 
 	for (int i = 0; i < robots->size(); i++) {
 		if (robots[0][i]->alive) {
@@ -65,22 +67,6 @@ float renderer::modX(float x) {
 	return x - _offsetX;
 }
 
-void renderer::drawRobot(robot * r, sf::Color tag) {
-
-	for (int i = 0; i < r->muscles.size(); i++) {
-		drawMuscle(r->muscles[i]->a->position, r->muscles[i]->b->position, r->muscles[i]->strength);
-	}
-
-	point * highest = r->joints[0]->position;
-	for (int i = 0; i < r->joints.size(); i++) {
-		drawJoint(r->joints[i]->position, r->joints[i]->weight);
-		if (r->joints[i]->position->y > highest->y) {
-			highest = r->joints[i]->position;
-		}
-	}
-	
-	drawLine(new point(highest->x, highest->y + 200), highest, tag);
-}
 void renderer::drawRobot(robot * r) {
 
 	for (int i = 0; i < r->muscles.size(); i++) {

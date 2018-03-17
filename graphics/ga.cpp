@@ -83,7 +83,7 @@ void ga::breed(std::vector<chromosome*>* population) {
 	long total = 0;
 	for (int i = 0; i < _size; i++) {
 		if (_temp[i]->fittness > 0) {
-			_temp[i]->weighted_rank = pow(_size - i, _selectionPressure);
+			_temp[i]->weighted_rank = pow(_temp[i]->fittness / 1000, _selectionPressure);
 			//_temp[i]->fittness = 100;
 			long fitness = _temp[i]->weighted_rank;
 			if (fitness > fittest) {

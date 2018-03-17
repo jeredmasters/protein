@@ -15,6 +15,8 @@ class renderer {
 		int _offsetX;
 		float modY(float y);
 		float modX(float x);
+		point* _zeroA;
+		point* _zeroB;
 	
 	public:
 		renderer(int height, int width);
