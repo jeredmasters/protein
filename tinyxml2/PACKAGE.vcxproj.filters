@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\jered\Documents\projects\OpenNN\CMakeFiles\7befcf8f60bbe44db4d4516077f1b73e\PACKAGE_force.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{34A8E99F-40B5-356C-A859-15AA256C1E07}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
