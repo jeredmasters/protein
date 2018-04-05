@@ -13,8 +13,8 @@ public:
 	long weighted_rank;
 	chromosome(string str);
 	chromosome(std::vector<uint16_t> _dna);
+	uint8_t * get(int i);
 	~chromosome();
 	std::string toString();
-
 };
 

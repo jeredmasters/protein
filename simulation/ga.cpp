@@ -8,16 +8,14 @@ ga::ga(int size, int length, int selectionPressure) :
 	generator(rd()),
 	distribution(0, LONG_MAX)
 {
+	_rndCore = 0;
 	_size = size;
 	_length = length;
 	_selectionPressure = selectionPressure;
 	_temp.reserve(_size);
 	_forcedSuccess = true;
 }
-uint16_t rand16() {
-	uint16_t r = (uint16_t)(rand() % 65536);
-	return r;
-}
+
 long ga::randVal(long max) {
 	return (distribution(generator) % (max + 1));
 }
@@ -47,7 +45,7 @@ std::vector<uint16_t>* ga::newDna() {
 	std::vector<uint16_t>* dna = new std::vector<uint16_t>;
 	dna->reserve(_length);
 	for (int j = 0; j < _length; j++) {
-		dna->push_back(rand16());
+		dna->push_back(randVal(65536));
 	}
 	return dna;
 }
@@ -103,10 +101,11 @@ void ga::breed(std::vector<chromosome*>* population) {
 				cout << "FALSE REGRESSION!!\n";
 			}
 		}
-		_temp = newGeneration();
 		for (int i = 0; i < _size; i++) {
-			population[0][i] = _temp[i];
+			delete _temp[i];
 		}
+		_temp.clear();
+		population->clear();
 		cout << "REGRESSION!!\n";
 		return;
 	}

@@ -2,31 +2,18 @@
 
 #include "stdafx.h"
 
-uint8_t get_nybble(std::uint16_t number, const unsigned short part)
-{
-	if (part > 3)
-		throw std::out_of_range("'part' must be a number between 0 and 3");
-	uint8_t n = (number >> (4 * part)) & 0xF;
-	return n;
-}
 
-uint8_t * explode(std::uint16_t number) {
-	uint8_t * retval = new uint8_t[4];
-	retval[0] = get_nybble(number, 0);
-	retval[1] = get_nybble(number, 1);
-	retval[2] = get_nybble(number, 2);
-	retval[3] = get_nybble(number, 3);
-	return retval;
-}
+
 
 robot::robot(chromosome * _gene)
 {
+	_verticalInfringements = 0;
 	gene = _gene;
 	alive = false;
 	gene->fittness = 0;
 
 	for (int i = 0; i < gene->dna.size(); i++) {
-		uint8_t * data = explode(gene->dna[i]);
+		uint8_t * data = gene->get(i);
 		uint8_t t = data[0] / 2;
 
 		if (t >= 0 && t <= 2) {  // 3/8
@@ -46,7 +33,7 @@ robot::robot(chromosome * _gene)
 	}
 
 	for (int i = 0; i < gene->dna.size(); i++) {
-		uint8_t * data = explode(gene->dna[i]);
+		uint8_t * data = gene->get(i);
 		uint8_t t = data[0] / 2;
 
 		if (t >= 3 && t <= 6) {
@@ -72,7 +59,7 @@ robot::robot(chromosome * _gene)
 	}
 
 	for (int i = 0; i < gene->dna.size(); i++) {
-		uint8_t * data = explode(gene->dna[i]);
+		uint8_t * data = gene->get(i);
 		uint8_t t = data[0] / 2;
 
 		if (t == 7) {
@@ -180,6 +167,8 @@ long robot::fittness() {
 	}
 	if (total <= 0) {
 		gene->fittness = 0;
+		alive = false;
+		return 0;
 	}
 	else {
 		gene->fittness = total / joints.size();
@@ -200,13 +189,33 @@ void robot::osc() {
 		}
 	}
 }
+bool vertical(joint * a, joint * b) {
+	return(
+			a->position->y > 5 &&
+			a->velocity->x == 0 &&
+			a->position->y < 5 &&
+			b->velocity->x != 0
+		) ||
+		(
+			a->position->x == b->position->x &&
+			a->position->y != b->position->y &&
+			a->velocity->x == 0 &&
+			b->velocity->x == 0 &&
+			a->velocity->y > 0 &&
+			a->position->y > 5 &&
+			b->position->y < 5
+		);
+}
+
 void robot::reaction() {
+	float delta, scaled, rX, rY, accY, accX;
+	double length, force;
 	for (int i = 0; i < muscles.size(); i++) {
 		muscle* m = muscles[i];
-		double length = m->length();
-		float delta = length - m->desiredLength();
-		float scaled = m->strength * delta;
-		double force = springForce(scaled);
+		length = m->length();
+		delta = length - m->desiredLength();
+		scaled = m->strength * delta;
+		force = springForce(scaled);
 
 		force = force / TICK_PER_SEC;
 
@@ -218,10 +227,10 @@ void robot::reaction() {
 			}
 
 
-			float rX = m->dX() / length;
-			float rY = m->dY() / length;
-			float accY = rY * force;
-			float accX = rX * force;
+			rX = m->dX() / length;
+			rY = m->dY() / length;
+			accY = rY * force;
+			accX = rX * force;
 
 
 			m->a->velocity->x -= accX / (m->a->weight * 2);
@@ -229,6 +238,16 @@ void robot::reaction() {
 
 			m->b->velocity->x += accX / (m->b->weight * 2);
 			m->b->velocity->y += accY / (m->b->weight * 2);
+
+			if (vertical(m->a, m->b) || vertical(m->b, m->a)) {
+				_verticalInfringements++;
+				if (_verticalInfringements > 3) {
+					alive = false;
+				}
+			}
+			else {
+				_verticalInfringements = 0;
+			}
 
 			if (
 				m->inf() ||
@@ -242,6 +261,7 @@ void robot::reaction() {
 		}
 	}
 }
+
 
 void robot::gravity()
 {

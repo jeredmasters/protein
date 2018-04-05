@@ -213,3 +213,11 @@ Makefile*
 .vs
 *.log
 *.tlog
+
+
+# Neural Network
+*.bin
+*.dat
+*.ndr
+*.xml
+enc_temp_folder

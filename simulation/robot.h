@@ -16,6 +16,7 @@ class robot
 		void momentum();
 		void friction();
 		void floor();
+		int _verticalInfringements;
 
 		
 	public:

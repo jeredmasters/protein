@@ -7,6 +7,7 @@ using namespace std;
 
 class ga {
 	private:
+		int _rndCore;
 		int _size;
 		int _length;
 		int _selectionPressure;
