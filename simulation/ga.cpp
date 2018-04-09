@@ -50,19 +50,25 @@ std::vector<uint16_t>* ga::newDna() {
 	return dna;
 }
 
-std::vector<chromosome*> ga::newGeneration() {
-	srand(time(NULL));
+std::vector<chromosome*> ga::newGeneration() {	
 	std::vector<chromosome*> population;
 	population.reserve(_size);
 	for (int i = 0; i < _size; i++) {
-
 		population.push_back(new chromosome(*newDna()));
+	}
+	return population;
+}
+std::vector<chromosome*> ga::newGeneration(chromosome* root) {
+	std::vector<chromosome*> population;
+	population.reserve(_size);
+	for (int i = 0; i < _size; i++) {
+		population.push_back(root->clone());
 	}
 	return population;
 }
 std::vector<uint16_t>* ga::choose(int max) {
 	int v = randVal(max);
-	for (int i = 0; i < _length; i++) {
+	for (int i = 0; i < _size; i++) {
 		v -= _temp[i]->weighted_rank;
 		if (v < 0) {
 			return &_temp[i]->dna;
@@ -141,4 +147,8 @@ void ga::mutate(std::vector<chromosome*> * population, int generation) {
 			dna[0][j] = dna[0][j] ^ randBits(generation);
 		}
 	}
+}
+
+int ga::size() {
+	return _size;
 }

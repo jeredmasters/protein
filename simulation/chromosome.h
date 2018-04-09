@@ -16,5 +16,6 @@ public:
 	uint8_t * get(int i);
 	~chromosome();
 	std::string toString();
+	chromosome * clone();
 };
 

@@ -78,7 +78,7 @@ void main(){
 	training_strategy.perform_training();
 
 	//  ####  TESTING
-	std::cout << "Running testsg..." << std::endl;
+	std::cout << "Running tests..." << std::endl;
 	TestingAnalysis testing_analysis(&neural_network, &data_set);
 
 	TestingAnalysis::LinearRegressionResults linear_regression_results =

@@ -14,7 +14,7 @@ class ga {
 		std::vector<chromosome*> _temp;
 		std::vector<uint16_t> crossover(std::vector<uint16_t>* a, std::vector<uint16_t>* b);
 		std::vector<uint16_t>* choose(int max);
-		std::vector<uint16_t>* newDna();
+		
 		std::random_device rd;
 		std::default_random_engine generator;
 		std::uniform_int_distribution<long> distribution;
@@ -23,6 +23,9 @@ class ga {
 		bool _forcedSuccess;
 
 	public:
+		int size();
+		std::vector<uint16_t>* newDna();
+		std::vector<chromosome*> newGeneration(chromosome* root);
 		std::vector<chromosome*> newGeneration();
 		void breed(std::vector<chromosome*>* population);
 		void mutate(std::vector<chromosome*> * population, int generation);
