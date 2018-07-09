@@ -131,9 +131,9 @@ void ga::breed(std::vector<chromosome*>* population) {
 
 int ga::bitwiseRate(float gen_ratio, int bit_significance) {
 	float y = gen_ratio;
-	float x = bit_significance;	
+	float x = 3-bit_significance;	
 	
-	float bit_ratio = (-2.0 / 3.0)*x + (-2.0 / 2.0)*y + (4.0 / 6.0)*x*y + 3.0;
+	float bit_ratio = (-2.0 / 3.0)*x + (-2.0 / 2.0)*y + (4.0 / 6.0)*x*y + 2.0;
 
 	return _size / (_mutationRate * bit_ratio);
 }
