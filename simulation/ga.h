@@ -9,6 +9,8 @@ class ga {
 	private:
 		int _rndCore;
 		int _size;
+		int _mutationRate;
+		int _mutationVariance;
 		int _length;
 		int _selectionPressure;
 		std::vector<chromosome*> _temp;
@@ -18,9 +20,10 @@ class ga {
 		std::random_device rd;
 		std::default_random_engine generator;
 		std::uniform_int_distribution<long> distribution;
-		uint16_t randBits(int generation);
+		
 		long randVal(long max);
-		bool _forcedSuccess;
+		bool _gradientDecent;
+		
 
 	public:
 		int size();
@@ -28,6 +31,8 @@ class ga {
 		std::vector<chromosome*> newGeneration(chromosome* root);
 		std::vector<chromosome*> newGeneration();
 		void breed(std::vector<chromosome*>* population);
-		void mutate(std::vector<chromosome*> * population, int generation);
-		ga(int _size, int _length, int _selectionPressure);
+		void mutate(std::vector<chromosome*> * population, float gen_ratio);
+		ga(int size, int length, int selectionPressure, int mutationRate, int mutationVariance, bool gradientDecent);
+		uint16_t randBits(float gen_ratio);
+		int bitwiseRate(float gen_ratio, int bit_significance);
 };

@@ -208,12 +208,13 @@ bool vertical(joint * a, joint * b) {
 }
 
 void robot::reaction() {
-	float delta, scaled, rX, rY, accY, accX;
+	float desiredlength, delta, scaled, rX, rY, accY, accX;
 	double length, force;
 	for (int i = 0; i < muscles.size(); i++) {
 		muscle* m = muscles[i];
 		length = m->length();
-		delta = length - m->desiredLength();
+		desiredlength = m->desiredLength();
+		delta = length - desiredlength;
 		scaled = m->strength * delta;
 		force = springForce(scaled);
 

@@ -18,4 +18,5 @@ class communicator {
 		parameters * getParameters();
 		communicator(std::string base);
 		void pushResults(std::string testId, long fitness, long millis);
+		void pushChromosome(std::string testId, std::string chromosome, long fitness, long millis);
 };

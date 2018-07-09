@@ -158,8 +158,6 @@ if %errorlevel% neq 0 goto :VCEnd</Command>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="C:\Users\jered\Documents\projects\OpenNN\ZERO_CHECK.vcxproj">
       <Project>{2A0C5485-534C-321B-8F46-D0002C94A075}</Project>
       <Name>ZERO_CHECK</Name>
