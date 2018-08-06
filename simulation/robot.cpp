@@ -2,9 +2,6 @@
 
 #include "stdafx.h"
 
-
-
-
 robot::robot(chromosome * _gene)
 {
 	_verticalInfringements = 0;
@@ -46,7 +43,6 @@ robot::robot(chromosome * _gene)
 			muscles.push_back(new muscle(
 				joints[j_a],
 				joints[j_b],
-				b,
 				c
 			));
 		}
@@ -100,45 +96,12 @@ void robot::tick()
 	if (alive) {
 		osc();
 		reaction();
-		gravity();
-		momentum();
-		friction();
+		gravity();		
+		friction();	
 		floor();
-		fittness();
-	}
-
-}
-void robot::tick(timer_collection* timers)
-{
-	if (alive) {
-		timers->osc.start();
-		osc();
-		timers->osc.stop();
-
-
-		timers->reaction.start();
-		reaction();
-		timers->reaction.stop();
-
-
-		timers->gravity.start();
-		gravity();
-		timers->gravity.stop();
-
-
-		timers->momentum.start();
+		applyForce();
 		momentum();
-		timers->momentum.stop();
-
-
-		timers->friction.start();
-		friction();
-		timers->friction.stop();
-
-
-		timers->floor.start();
-		floor();
-		timers->floor.stop();
+		fittness();		
 	}
 
 }
@@ -176,11 +139,11 @@ long robot::fittness() {
 	return gene->fittness;
 }
 double springForce(float sd) {
-	float q = pow(sd / 3, 2);
+	float q = pow(sd / 4, 2);
 	if (sd < 0) {
 		q *= -1;
 	}
-	return sd * 5 + q * 2;
+	return sd * 4 + q;
 }
 void robot::osc() {
 	for (int i = 0; i < muscles.size(); i++) {
@@ -234,11 +197,11 @@ void robot::reaction() {
 			accX = rX * force;
 
 
-			m->a->velocity->x -= accX / (m->a->weight * 2);
-			m->a->velocity->y -= accY / (m->a->weight * 2);
+			m->a->force->x -= accX;
+			m->a->force->y -= accY;
 
-			m->b->velocity->x += accX / (m->b->weight * 2);
-			m->b->velocity->y += accY / (m->b->weight * 2);
+			m->b->force->x += accX;
+			m->b->force->y += accY;
 
 			if (vertical(m->a, m->b) || vertical(m->b, m->a)) {
 				_verticalInfringements++;
@@ -271,14 +234,6 @@ void robot::gravity()
 	}
 }
 
-void robot::momentum()
-{
-	for (int i = 0; i < joints.size(); i++) {
-		joints[i]->position->x += joints[i]->velocity->x / TICK_PER_SEC;
-		joints[i]->position->y += joints[i]->velocity->y / TICK_PER_SEC;
-	}
-}
-
 void robot::friction()
 {
 	for (int i = 0; i < joints.size(); i++) {
@@ -287,21 +242,82 @@ void robot::friction()
 	}
 }
 
+void robot::applyForce()
+{
+	for (int i = 0; i < joints.size(); i++) {
+		joints[i]->velocity->x += joints[i]->force->x / (joints[i]->weight * 2);
+		joints[i]->velocity->y += joints[i]->force->y / (joints[i]->weight * 2);
+		joints[i]->force->x = 0;
+		joints[i]->force->y = 0;
+	}
+}
+
+void robot::momentum()
+{
+	for (int i = 0; i < joints.size(); i++) {
+		joints[i]->position->x += joints[i]->velocity->x / TICK_PER_SEC;
+		joints[i]->position->y += joints[i]->velocity->y / TICK_PER_SEC;
+	}
+}
+
+float pi = 3.14159265359;
+float _2pi = pi * 2;
+float pi_2 = pi / 2;
+float pi_8 = pi / 8;
+
+edge * edgeAt(float x) {
+	if (x < 800) {
+		return new edge(x, 0, 0);
+	}
+	else {
+		int incline = 8;
+		return new edge(x, (x - 800) / incline, -pi / (incline * 4));
+	}
+}
+
+point * findComponent(point * velocity, float c_ang) {
+	float v_ang = velocity->angle();
+	float v_mag = velocity->magnitude();
+	float c_mag = cos(v_ang - c_ang) * v_mag;
+
+	return new point(c_mag * cos(c_ang), c_mag * sin(c_ang));
+}
+float deceleration_interval = 10.f; // 10 ms
+float friction_coefficient = 0.1;
 void robot::floor()
 {
 	float impact;
 	float friction;
 	for (int i = 0; i < joints.size(); i++) {
-		if (joints[i]->position->y <= 0) {
-			impact = 1 - (joints[i]->position->y + 1);
-			friction = pow(impact * 5, 2);
-			joints[i]->velocity->x = joints[i]->velocity->x / (friction + 1);
+		edge * e = edgeAt(joints[i]->position->x);
+		if (joints[i]->position->y <= e->y) {
+			point * impact_velocity = findComponent(joints[i]->velocity, e->angle - pi_2);
+			point * impact_force = findComponent(joints[i]->force, e->angle - pi_2);
+			point * tangent_velocity = findComponent(joints[i]->velocity, e->angle);
 
-			joints[i]->position->y = 0;
-			joints[i]->velocity->y = abs(joints[i]->velocity->y) * 0.3;
+			float friction = (impact_velocity->magnitude() / deceleration_interval) * (float)joints[i]->weight + (float)joints[i]->weight * friction_coefficient;
+			float tangent_magnitude = tangent_velocity->magnitude();
+
+			// Static friction
+			if (tangent_velocity->magnitude() < friction) {
+				joints[i]->force->y -= tangent_velocity->y * (joints[i]->weight * 2);
+				joints[i]->force->x -= tangent_velocity->x * (joints[i]->weight * 2);
+			}
+
+			joints[i]->force->y = joints[i]->force->y - impact_velocity->y * (joints[i]->weight * 2) - impact_force->y;
+			joints[i]->force->x = joints[i]->force->x - impact_velocity->x * (joints[i]->weight * 2) - impact_force->x;
+
+			joints[i]->position->y = e->y;
+
+			delete impact_force;
+			delete impact_velocity;
+			delete tangent_velocity;
 		}
+		delete e;
 	}
 }
+
+
 
 robot::~robot() {
 	for (int i = 0; i < joints.size(); i++) {

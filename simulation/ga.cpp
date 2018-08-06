@@ -4,7 +4,7 @@
 #include <algorithm>
 
 
-ga::ga(int size, int length, int selectionPressure, int mutationRate, int mutationVariance, bool gradientDecent) :
+ga::ga(int size, int length, int selectionPressure, int mutationRate, int mutationVariance, bool steepestDecent, int crossover) :
 	generator(rd()),
 	distribution(0, LONG_MAX)
 {
@@ -14,9 +14,9 @@ ga::ga(int size, int length, int selectionPressure, int mutationRate, int mutati
 	_selectionPressure = selectionPressure;
 	_mutationRate = mutationRate;
 	_mutationVariance = mutationVariance;
-	_gradientDecent = gradientDecent;
+	_steepestDecent = steepestDecent;
+	_crossover = 0;
 	_temp.reserve(_size);
-	_gradientDecent = true;
 }
 
 long ga::randVal(long max) {
@@ -25,11 +25,22 @@ long ga::randVal(long max) {
 
 
 std::vector<uint16_t> ga::crossover(std::vector<uint16_t>* a, std::vector<uint16_t>* b) {
+
 	srand(time(NULL));
-	int frequency = 20;
+	
 	bool choose_a = randVal(1) == 0;
 	std::vector<uint16_t> retval;
 	retval.reserve(_length);
+
+	if (_crossover <= 0) {
+		for (int i = 0; i < _length; i++) {
+			retval.push_back((*a)[i]);
+		}
+		return retval;
+	}
+
+	int frequency = _size / _crossover;
+
 	for (int i = 0; i < _length; i++) {
 		if (choose_a) {
 			retval.push_back((*a)[i]);
@@ -56,11 +67,18 @@ std::vector<uint16_t>* ga::newDna() {
 std::vector<chromosome*> ga::newGeneration() {	
 	std::vector<chromosome*> population;
 	population.reserve(_size);
-	#pragma omp for
 	for (int i = 0; i < _size; i++) {
 		chromosome * c = new chromosome(*newDna());
-		#pragma omp critical
-		population.push_back(c);
+
+		robot * r = new robot(c);	
+		if (!r->alive) {
+			delete c;
+			i--;
+		}
+		else {
+			population.push_back(c);
+		}
+		delete r;
 	}
 	return population;
 }
@@ -112,18 +130,18 @@ void ga::breed(std::vector<chromosome*>* population) {
 		cout << "REGRESSION!!\n";
 		return;
 	}
-	if (_gradientDecent) {
+	if (_steepestDecent) {
 		population[0][0] = _temp[0];
 	}
 	#pragma omp for
-	for (int i = (_gradientDecent ? 1 : 0); i < _size; i++) {
+	for (int i = (_steepestDecent ? 1 : 0); i < _size; i++) {
 		std::vector<uint16_t>* a = choose(total);
 		std::vector<uint16_t>* b = choose(total);
 		std::vector<uint16_t> c = crossover(a, b);
 		population[0][i] = new chromosome(c);
 	}
 	#pragma omp for
-	for (int i = (_gradientDecent ? 1 : 0); i < population->size(); i++) {
+	for (int i = (_steepestDecent ? 1 : 0); i < population->size(); i++) {
 		delete _temp[i];
 	}
 	_temp.clear();
@@ -171,8 +189,11 @@ uint16_t ga::randBits(float gen_ratio) {
 }
 
 void ga::mutate(std::vector<chromosome*> * population, float gen_ratio) {
+	if (_mutationRate == 0) {
+		return;
+	}
 	#pragma omp for
-	for (int i = (_gradientDecent ? 1 : 0); i < _size; i++) {
+	for (int i = (_steepestDecent ? 1 : 0); i < _size; i++) {
 		std::vector<uint16_t> * dna = &population[0][i]->dna;
 		for (int j = 0; j < _length; j++) {
 			dna[0][j] = dna[0][j] ^ randBits(gen_ratio * 2);

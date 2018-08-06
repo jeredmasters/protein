@@ -8,3 +8,10 @@ point::point(float _x, float _y) {
 	y = _y;
 }
 
+float point::magnitude() {
+	return sqrt(pow(x, 2) + pow(y, 2));
+}
+
+float point::angle() {
+	return atan2(y, x);
+}

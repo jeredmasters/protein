@@ -4,15 +4,15 @@
 parameters::parameters() {
 	this->complete = true;
 	this->benchmark = true;
-	this->population = 50;
+	this->population = 100;
 	this->generations = 50;
 	this->selection_pressure = 2;
-	this->duration = 20000;
-	this->crossover_rate = 5;
-	this->mutation_rate = 6;
+	this->duration = 100000;
+	this->crossover_rate = 4;
+	this->mutation_rate = 2;
 	this->mutation_variance = 0;
-	this->duration_variance = 0;
-	this->gradient_decent = true;
+	this->duration_variance = 1;
+	this->steepest_decent = true;
 }
 
 bool parameters::parse(std::string input) {
@@ -46,7 +46,7 @@ bool parameters::parse(std::string input) {
 		this->mutation_rate = std::stoi(strings[6]);
 		this->mutation_variance = std::stoi(strings[7]);
 		this->duration_variance = std::stoi(strings[8]);
-		this->gradient_decent = std::stoi(strings[9]);
+		this->steepest_decent = std::stoi(strings[9]);
 	}
 
 	return this->complete;

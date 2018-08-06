@@ -11,6 +11,7 @@ class muscle {
 		float osc_pos;
 		float osc_speed;
 		
+		bool hasOsc();
 		float strength;
 		float dX();
 		float dY();
@@ -20,5 +21,5 @@ class muscle {
 		void oscTick();
 		bool inf();
 		void setOsc(float _osc_range, float _osc_speed);
-		muscle(joint* _a, joint* _b, float osc, float s);
+		muscle(joint* _a, joint* _b, float s);
 };

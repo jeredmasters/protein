@@ -13,6 +13,18 @@ chromosome::chromosome(std::vector<uint16_t> _dna) {
 	fittness = 0;
 }
 
+chromosome::chromosome(const char * gene[], int size) :
+	dna()
+{
+	for (int i = 0; i < size; i+=4) {
+		int sum = 0;
+		for (int j = 0; j < 4; j++) {
+			sum += atoi(gene[i + j]) * (int)pow(16, j);
+		}
+		dna.push_back(sum);
+	}
+}
+
 chromosome::chromosome(string str) :
 	dna()
 {

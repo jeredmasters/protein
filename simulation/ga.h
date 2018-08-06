@@ -13,6 +13,7 @@ class ga {
 		int _mutationVariance;
 		int _length;
 		int _selectionPressure;
+		int _crossover;
 		std::vector<chromosome*> _temp;
 		std::vector<uint16_t> crossover(std::vector<uint16_t>* a, std::vector<uint16_t>* b);
 		std::vector<uint16_t>* choose(int max);
@@ -22,7 +23,7 @@ class ga {
 		std::uniform_int_distribution<long> distribution;
 		
 		long randVal(long max);
-		bool _gradientDecent;
+		bool _steepestDecent;
 		
 
 	public:
@@ -32,7 +33,7 @@ class ga {
 		std::vector<chromosome*> newGeneration();
 		void breed(std::vector<chromosome*>* population);
 		void mutate(std::vector<chromosome*> * population, float gen_ratio);
-		ga(int size, int length, int selectionPressure, int mutationRate, int mutationVariance, bool gradientDecent);
+		ga(int size, int length, int selectionPressure, int mutationRate, int mutationVariance, bool steepestDecent, int crossover);
 		uint16_t randBits(float gen_ratio);
 		int bitwiseRate(float gen_ratio, int bit_significance);
 };

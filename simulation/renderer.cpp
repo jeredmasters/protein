@@ -29,17 +29,17 @@ void renderer::update(std::vector<robot*>* robots) {
 			case sf::Event::Closed:
 				_window.close();
 			case sf::Event::MouseWheelScrolled:
-				_offsetX += event.mouseWheelScroll.delta * 5;
+				_offsetX += event.mouseWheelScroll.delta * 50;
 		}
 	}
 
 
-	_window.clear();
+	_window.clear(sf::Color(255, 255, 255, 255));
 	long fittest = 0;
 	int fittext_index = 0;
 	for (int i = 0; i < robots->size(); i++) {
 		if (robots[0][i]->gene->fittness > fittest) {
-			fittext_index = i;
+			//fittext_index = i;
 			fittest = robots[0][i]->gene->fittness;
 		}
 		
@@ -47,7 +47,7 @@ void renderer::update(std::vector<robot*>* robots) {
 	robots[0][0]->tag = sf::Color(50, 50, 255, 255);
 	robots[0][fittext_index]->tag = sf::Color(50, 200, 200, 255);
 
-	drawLine(_zeroA, _zeroB, sf::Color(255, 255, 255, 255));
+	drawLine(_zeroA, _zeroB, sf::Color(0, 0, 0, 255));
 
 	for (int i = 0; i < robots->size(); i++) {
 		if (robots[0][i]->alive) {
@@ -71,6 +71,9 @@ void renderer::drawRobot(robot * r) {
 
 	for (int i = 0; i < r->muscles.size(); i++) {
 		drawMuscle(r->muscles[i]->a->position, r->muscles[i]->b->position, r->muscles[i]->strength);
+		if (r->muscles[i]->hasOsc()) {
+			drawOscDot(r->muscles[i]->a->position, r->muscles[i]->b->position, r->muscles[i]->osc_speed);
+		}
 	}
 
 	point * highest = r->joints[0]->position;
@@ -82,19 +85,19 @@ void renderer::drawRobot(robot * r) {
 	}
 	if (r->tag.r > 0 && r->tag.g > 0 && r->tag.b > 0) {
 		point * top = new point(highest->x, highest->y + 200);
-		drawLine(top, highest, r->tag);
+		//drawLine(top, highest, r->tag);
 		delete top;
 	}
 }
 
 void renderer::drawJoint(point * p, int weight) {
-	float radius = 4.f;
+	float radius = 5.f;
 
-	sf::Color c = sf::Color(50, 255 - weight, 50, 255);
+	sf::Color c = sf::Color(0, 255 - weight, 0, 255);
 
 	sf::CircleShape shape(radius);
 	shape.setFillColor(c);
-	shape.setPosition(modX(p->x - radius), modY(p->y) - radius);
+	shape.setPosition(modX(p->x) - radius, modY(p->y) - radius);
 	_window.draw(shape);
 }
 
@@ -102,6 +105,20 @@ void renderer::drawMuscle(point * a, point * b, int strength) {
 
 	sf::Color c = sf::Color(255 - strength, 50, 50, 255);
 	drawLine(a, b, c);
+}
+
+void renderer::drawOscDot(point * a, point * b, int osc_speed) {
+	int x = (a->x + b->x) / 2;
+	int y = (a->y + b->y) / 2;
+
+	float radius = 4.f;
+
+	sf::Color c = sf::Color(0, 0, osc_speed * 5, 255);
+
+	sf::CircleShape shape(radius);
+	shape.setFillColor(c);
+	shape.setPosition(modX(x) - radius, modY(y) - radius);
+	_window.draw(shape);
 }
 
 void renderer::drawLine(point * a, point * b, sf::Color c) {

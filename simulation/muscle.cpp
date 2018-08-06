@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 
-muscle::muscle(joint* _a, joint* _b, float osc, float s) {
+muscle::muscle(joint* _a, joint* _b, float s) {
 
 	a = _a;
 	b = _b;
@@ -11,6 +11,10 @@ muscle::muscle(joint* _a, joint* _b, float osc, float s) {
 
 	osc_speed = 0;
 	osc_range = 0;
+}
+
+bool muscle::hasOsc() {
+	return osc_speed != 0;
 }
 
 void muscle::setOsc(float _osc_range, float _osc_speed) {

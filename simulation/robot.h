@@ -2,7 +2,6 @@
 
 #include "muscle.h"
 #include "chromosome.h"
-#include "timer_collection.h"
 #include <SFML/Graphics.hpp>
 
 class robot 
@@ -16,6 +15,7 @@ class robot
 		void momentum();
 		void friction();
 		void floor();
+		void applyForce();
 		int _verticalInfringements;
 
 		
@@ -25,7 +25,6 @@ class robot
 		robot(chromosome * _gene);
 		~robot();
 		void tick();
-		void tick(timer_collection* timers);
 		bool alive;
 		chromosome * gene;
 		long fittness();

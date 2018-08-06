@@ -14,7 +14,7 @@ class parameters {
 		int mutation_rate;
 		int mutation_variance;
 		int duration_variance;
-		int gradient_decent;
+		int steepest_decent;
 		parameters();
 		bool parse(std::string input);
 };

@@ -6,5 +6,7 @@ class point {
 		float y;
 		point();
 		point(float _x, float _y);
+		float magnitude();
+		float angle();
 };
 
