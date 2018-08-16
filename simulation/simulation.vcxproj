@@ -173,6 +173,7 @@
     <ClInclude Include="chromosome.h" />
     <ClInclude Include="communicator.h" />
     <ClInclude Include="edge.h" />
+    <ClInclude Include="obstacle.h" />
     <ClInclude Include="ga.h" />
     <ClInclude Include="parameters.h" />
     <ClInclude Include="result.h" />
@@ -191,6 +192,7 @@
     <ClCompile Include="communicator.cpp" />
     <ClCompile Include="edge.cpp" />
     <ClCompile Include="ga.cpp" />
+    <ClCompile Include="obstacle.cpp" />
     <ClCompile Include="joint.cpp" />
     <ClCompile Include="muscle.cpp" />
     <ClCompile Include="parameters.cpp" />

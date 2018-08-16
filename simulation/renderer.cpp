@@ -16,7 +16,7 @@ renderer::renderer(int height, int width) :
 	_zeroB = new point(0, _height);
 }
 
-void renderer::update(std::vector<robot*>* robots) {
+void renderer::update(std::vector<robot*>* robots, obstacle * _obstacle) {
 
 
 	sf::Event event;
@@ -55,6 +55,8 @@ void renderer::update(std::vector<robot*>* robots) {
 		}
 		robots[0][i]->tag = sf::Color(0, 0, 0, 0);
 	}
+
+	drawObstacle(_obstacle);
 
 	_window.display();
 }
@@ -133,4 +135,19 @@ void renderer::drawLine(point * a, point * b, sf::Color c) {
 	line[1].color = c;
 
 	_window.draw(line, 2, sf::Lines);
+}
+
+void renderer::drawObstacle(obstacle * _obstacle) {
+	std::vector<point *> * points = _obstacle->points();
+
+	sf::Vertex * line = (sf::Vertex *)malloc(points->size() * sizeof(sf::Vertex));
+
+	for (int i = 0; i < points->size(); i++) {
+		line[i] = sf::Vertex(sf::Vector2f(modX(points[0][i]->x), modY(points[0][i]->y)));
+		line[i].color = sf::Color(0, 0, 0, 255);
+	}
+
+	_window.draw(line, points->size(), sf::Lines);	
+
+	free(line);
 }

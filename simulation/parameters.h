@@ -15,6 +15,7 @@ class parameters {
 		int mutation_variance;
 		int duration_variance;
 		int steepest_decent;
+		int obstacle;
 		parameters();
 		bool parse(std::string input);
 };

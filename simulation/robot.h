@@ -2,6 +2,7 @@
 
 #include "muscle.h"
 #include "chromosome.h"
+#include "obstacle.h"
 #include <SFML/Graphics.hpp>
 
 class robot 
@@ -14,7 +15,7 @@ class robot
 		void gravity();
 		void momentum();
 		void friction();
-		void floor();
+		void floor(obstacle * _obstacle);
 		void applyForce();
 		int _verticalInfringements;
 
@@ -24,7 +25,7 @@ class robot
 		std::vector<muscle*> muscles;
 		robot(chromosome * _gene);
 		~robot();
-		void tick();
+		void tick(obstacle * _obstacle);
 		bool alive;
 		chromosome * gene;
 		long fittness();

@@ -13,6 +13,7 @@ parameters::parameters() {
 	this->mutation_variance = 0;
 	this->duration_variance = 1;
 	this->steepest_decent = true;
+	this->obstacle = 3;
 }
 
 bool parameters::parse(std::string input) {
@@ -47,6 +48,7 @@ bool parameters::parse(std::string input) {
 		this->mutation_variance = std::stoi(strings[7]);
 		this->duration_variance = std::stoi(strings[8]);
 		this->steepest_decent = std::stoi(strings[9]);
+		this->obstacle = std::stoi(strings[10]);
 	}
 
 	return this->complete;

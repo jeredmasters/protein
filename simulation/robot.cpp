@@ -91,19 +91,18 @@ robot::robot(chromosome * _gene)
 }
 
 
-void robot::tick()
+void robot::tick(obstacle * _obstacle)
 {
 	if (alive) {
 		osc();
 		reaction();
 		gravity();		
 		friction();	
-		floor();
+		floor(_obstacle);
 		applyForce();
 		momentum();
 		fittness();		
 	}
-
 }
 void robot::validate() {
 	for (int i = 0; i < joints.size(); i++) {
@@ -265,15 +264,7 @@ float _2pi = pi * 2;
 float pi_2 = pi / 2;
 float pi_8 = pi / 8;
 
-edge * edgeAt(float x) {
-	if (x < 800) {
-		return new edge(x, 0, 0);
-	}
-	else {
-		int incline = 8;
-		return new edge(x, (x - 800) / incline, -pi / (incline * 4));
-	}
-}
+
 
 point * findComponent(point * velocity, float c_ang) {
 	float v_ang = velocity->angle();
@@ -283,25 +274,31 @@ point * findComponent(point * velocity, float c_ang) {
 	return new point(c_mag * cos(c_ang), c_mag * sin(c_ang));
 }
 float deceleration_interval = 10.f; // 10 ms
-float friction_coefficient = 0.1;
-void robot::floor()
+float friction_coefficient = 2;
+void robot::floor(obstacle * _obstacle)
 {
 	float impact;
 	float friction;
 	for (int i = 0; i < joints.size(); i++) {
-		edge * e = edgeAt(joints[i]->position->x);
+		edge * e = _obstacle->edgeAt(joints[i]->position->x);
 		if (joints[i]->position->y <= e->y) {
+
 			point * impact_velocity = findComponent(joints[i]->velocity, e->angle - pi_2);
 			point * impact_force = findComponent(joints[i]->force, e->angle - pi_2);
 			point * tangent_velocity = findComponent(joints[i]->velocity, e->angle);
+			point * tangent_force = findComponent(joints[i]->force, e->angle);
 
-			float friction = (impact_velocity->magnitude() / deceleration_interval) * (float)joints[i]->weight + (float)joints[i]->weight * friction_coefficient;
-			float tangent_magnitude = tangent_velocity->magnitude();
+			float friction = ((impact_velocity->magnitude() / deceleration_interval) * (float)joints[i]->weight + impact_force->magnitude()) * friction_coefficient;
+			float tangent_magnitude = tangent_velocity->magnitude() * (joints[i]->weight * 2) + tangent_force->magnitude();
 
 			// Static friction
-			if (tangent_velocity->magnitude() < friction) {
-				joints[i]->force->y -= tangent_velocity->y * (joints[i]->weight * 2);
-				joints[i]->force->x -= tangent_velocity->x * (joints[i]->weight * 2);
+			if (tangent_magnitude < friction) {
+				joints[i]->force->y -= (tangent_velocity->y * (joints[i]->weight * 2) + tangent_force->y);
+				joints[i]->force->x -= (tangent_velocity->x * (joints[i]->weight * 2) + tangent_force->x);
+			}
+			else {
+				joints[i]->force->y -= (tangent_velocity->y * (joints[i]->weight * 2) + tangent_force->y) / 50;
+				joints[i]->force->x -= (tangent_velocity->x * (joints[i]->weight * 2) + tangent_force->x) / 50;
 			}
 
 			joints[i]->force->y = joints[i]->force->y - impact_velocity->y * (joints[i]->weight * 2) - impact_force->y;
