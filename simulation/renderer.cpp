@@ -86,9 +86,9 @@ void renderer::drawRobot(robot * r) {
 		}
 	}
 	if (r->tag.r > 0 && r->tag.g > 0 && r->tag.b > 0) {
-		point * top = new point(highest->x, highest->y + 200);
+		//point * top = new point(highest->x, highest->y + 200);
 		//drawLine(top, highest, r->tag);
-		delete top;
+		//delete top;
 	}
 }
 

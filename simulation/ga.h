@@ -13,23 +13,24 @@ class ga {
 		int _mutationVariance;
 		int _length;
 		int _selectionPressure;
-		int _crossover;
+		int _crossover_rate;
+
 		std::vector<chromosome*> _temp;
-		std::vector<uint16_t> crossover(std::vector<uint16_t>* a, std::vector<uint16_t>* b);
-		std::vector<uint16_t>* choose(int max);
+		void crossover(std::vector<uint16_t>* a, std::vector<uint16_t>* b, std::vector<chromosome*>* population, int i);
+		std::vector<uint16_t>* choose(long long int max);
 		
 		std::random_device rd;
 		std::default_random_engine generator;
-		std::uniform_int_distribution<long> distribution;
+		std::uniform_int_distribution<long long int> distribution;
 		
-		long randVal(long max);
+		long randLONG(long max);
+		long long int randLLONG(long long int max);
 		bool _steepestDecent;
 		
 
 	public:
 		int size();
 		std::vector<uint16_t>* newDna();
-		std::vector<chromosome*> newGeneration(chromosome* root);
 		std::vector<chromosome*> newGeneration();
 		void breed(std::vector<chromosome*>* population);
 		void mutate(std::vector<chromosome*> * population, float gen_ratio);

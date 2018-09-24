@@ -25,3 +25,9 @@ ipch
 x64
 simulation/x64
 .vs
+.idb
+.pdb
+.iobj
+.pdb
+.user
+.exe

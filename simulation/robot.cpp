@@ -153,20 +153,10 @@ void robot::osc() {
 }
 bool vertical(joint * a, joint * b) {
 	return(
-			a->position->y > 5 &&
-			a->velocity->x == 0 &&
-			a->position->y < 5 &&
-			b->velocity->x != 0
-		) ||
-		(
-			a->position->x == b->position->x &&
-			a->position->y != b->position->y &&
-			a->velocity->x == 0 &&
-			b->velocity->x == 0 &&
-			a->velocity->y > 0 &&
-			a->position->y > 5 &&
-			b->position->y < 5
-		);
+		a->velocity->x == 0 &&
+		b->velocity->x == 0 &&
+		a->position->x == b->position->x
+	);
 }
 
 void robot::reaction() {
@@ -202,10 +192,11 @@ void robot::reaction() {
 			m->b->force->x += accX;
 			m->b->force->y += accY;
 
-			if (vertical(m->a, m->b) || vertical(m->b, m->a)) {
+			if (vertical(m->a, m->b)) {
 				_verticalInfringements++;
 				if (_verticalInfringements > 3) {
 					alive = false;
+					cout << "VERT; Killing robot :(\n";
 				}
 			}
 			else {
@@ -309,6 +300,7 @@ void robot::floor(obstacle * _obstacle)
 			delete impact_force;
 			delete impact_velocity;
 			delete tangent_velocity;
+			delete tangent_force;
 		}
 		delete e;
 	}
