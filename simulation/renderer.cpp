@@ -6,6 +6,12 @@
 #include "stdafx.h"
 #include <windows.h>
 
+renderer::renderer() :
+	_height(0),
+	_width(0)
+{
+}
+
 renderer::renderer(int height, int width) :
 	_window(sf::VideoMode(width, height), "GA"),
 	_height(height),
@@ -17,7 +23,9 @@ renderer::renderer(int height, int width) :
 }
 
 void renderer::update(std::vector<robot*>* robots, obstacle * _obstacle) {
-
+	if (_height == 0) {
+		return;
+	}
 
 	sf::Event event;
 	while (_window.pollEvent(event))
@@ -38,11 +46,10 @@ void renderer::update(std::vector<robot*>* robots, obstacle * _obstacle) {
 	long fittest = 0;
 	int fittext_index = 0;
 	for (int i = 0; i < robots->size(); i++) {
-		if (robots[0][i]->gene->fittness > fittest) {
+		if (robots[0][i]->gene->fitness > fittest) {
 			//fittext_index = i;
-			fittest = robots[0][i]->gene->fittness;
+			fittest = robots[0][i]->gene->fitness;
 		}
-		
 	}
 	robots[0][0]->tag = sf::Color(50, 50, 255, 255);
 	robots[0][fittext_index]->tag = sf::Color(50, 200, 200, 255);
@@ -55,6 +62,39 @@ void renderer::update(std::vector<robot*>* robots, obstacle * _obstacle) {
 		}
 		robots[0][i]->tag = sf::Color(0, 0, 0, 0);
 	}
+
+	drawObstacle(_obstacle);
+
+	_window.display();
+}
+
+void renderer::update(robot* robot, obstacle * _obstacle) {
+	if (_height == 0) {
+		return;
+	}
+
+	sf::Event event;
+	while (_window.pollEvent(event))
+	{
+		if (event.type == sf::Event::Closed)
+			_window.close();
+
+		switch (event.type) {
+		case sf::Event::Closed:
+			_window.close();
+		case sf::Event::MouseWheelScrolled:
+			_offsetX += event.mouseWheelScroll.delta * 50;
+		}
+	}
+
+
+	_window.clear(sf::Color(255, 255, 255, 255));
+
+	drawLine(_zeroA, _zeroB, sf::Color(0, 0, 0, 255));
+
+
+	drawRobot(robot);
+
 
 	drawObstacle(_obstacle);
 

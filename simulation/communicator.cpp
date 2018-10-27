@@ -45,7 +45,6 @@ std::string communicator::getToken() {
 }
 
 parameters * communicator::getParameters() {
-	std::cout << "Getting new parameters..." << std::endl;
 	CURL *curl;
 	CURLcode res;
 	std::string readBuffer;

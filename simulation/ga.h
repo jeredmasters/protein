@@ -36,5 +36,5 @@ class ga {
 		void mutate(std::vector<chromosome*> * population, float gen_ratio);
 		ga(int size, int length, int selectionPressure, int mutationRate, int mutationVariance, bool steepestDecent, int crossover);
 		uint16_t randBits(float gen_ratio);
-		int bitwiseRate(float gen_ratio, int bit_significance);
+		float bitwiseRate(float gen_ratio, int bit_significance);
 };

@@ -10,7 +10,7 @@ class timer_collection {
 		timer momentum;
 		timer friction;
 		timer floor;
-		timer fittness;
+		timer fitness;
 		void reset();
 };
 
@@ -22,6 +22,6 @@ void timer_collection::reset() {
 	momentum.reset();
 	friction.reset();
 	floor.reset();
-	fittness.reset();
+	fitness.reset();
 }
 

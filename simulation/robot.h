@@ -17,8 +17,8 @@ class robot
 		void friction();
 		void floor(obstacle * _obstacle);
 		void applyForce();
+		void calcFitness();
 		int _verticalInfringements;
-
 		
 	public:
 		std::vector<joint*> joints;
@@ -28,6 +28,6 @@ class robot
 		void tick(obstacle * _obstacle);
 		bool alive;
 		chromosome * gene;
-		long fittness();
+		long scaleFitness(int total_ticks);
 		sf::Color tag;
 };

@@ -19,8 +19,10 @@ class renderer {
 		point* _zeroB;
 	
 	public:
+		renderer();
 		renderer(int height, int width);
 		void update(std::vector<robot*>* robots, obstacle * _obstacle);
+		void update(robot* robot, obstacle * _obstacle);
 		void drawRobot(robot * r);
 		void drawRobot(robot * r, sf::Color tag);
 		void drawJoint(point * p, int weight);

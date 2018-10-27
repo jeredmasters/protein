@@ -11,6 +11,7 @@ Section
 SetOutPath $INSTDIR
  
 # specify file to go in output path
+File ..\ProtienLauncher\ProtienLauncher\bin\Debug\ProtienLauncher.exe
 File x64\Release\simulation.exe
 File x64\Release\sfml-window-2.dll
 File x64\Release\sfml-system-2.dll

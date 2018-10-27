@@ -5,14 +5,14 @@ parameters::parameters() {
 	this->complete = true;
 	this->benchmark = true;
 	this->population = 100;
-	this->generations = 50;
+	this->generations = 200;
 	this->selection_pressure = 2;
 	this->duration = 100000;
 	this->crossover_rate = 4;
-	this->mutation_rate = 2;
-	this->mutation_variance = 0;
+	this->mutation_rate = 3;
+	this->mutation_variance = 1;
 	this->duration_variance = 1;
-	this->steepest_decent = true;
+	this->steepest_decent = false;
 	this->obstacle = 3;
 }
 

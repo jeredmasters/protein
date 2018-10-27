@@ -10,7 +10,7 @@ uint8_t get_nybble(std::uint16_t number, const unsigned short part)
 
 chromosome::chromosome(std::vector<uint16_t> _dna) {
 	dna = _dna;
-	fittness = 0;
+	fitness = 0;
 }
 
 chromosome::chromosome(const char * gene[], int size) :
@@ -28,7 +28,7 @@ chromosome::chromosome(const char * gene[], int size) :
 chromosome::chromosome(string str) :
 	dna()
 {
-	fittness = 0;
+	fitness = 0;
 	int index = 0;
 	while (str.length() > 0) {
 		index = str.find(' ');

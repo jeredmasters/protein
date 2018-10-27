@@ -7,7 +7,7 @@ robot::robot(chromosome * _gene)
 	_verticalInfringements = 0;
 	gene = _gene;
 	alive = false;
-	gene->fittness = 0;
+	gene->fitness = 0;
 
 	for (int i = 0; i < gene->dna.size(); i++) {
 		uint8_t * data = gene->get(i);
@@ -19,7 +19,7 @@ robot::robot(chromosome * _gene)
 			uint8_t c = data[3] * 15;
 			joints.push_back(new joint(
 				new point(a, b),
-				c
+				c + 5
 			));
 		}
 
@@ -43,7 +43,7 @@ robot::robot(chromosome * _gene)
 			muscles.push_back(new muscle(
 				joints[j_a],
 				joints[j_b],
-				c
+				c + 5
 			));
 		}
 
@@ -64,7 +64,7 @@ robot::robot(chromosome * _gene)
 			uint8_t c = data[3] * 15;
 			int m_id = (a + i) % muscles.size();
 
-			muscles[m_id]->setOsc(b, c - 122);
+			muscles[m_id]->setOsc(b + 5, c - 122);
 		}
 
 		delete data;
@@ -101,7 +101,7 @@ void robot::tick(obstacle * _obstacle)
 		floor(_obstacle);
 		applyForce();
 		momentum();
-		fittness();		
+		calcFitness();		
 	}
 }
 void robot::validate() {
@@ -109,33 +109,35 @@ void robot::validate() {
 		if (joints[i]->inf()) {
 			cout << "INF; Killing robot :(\n";
 			alive = false;
-			gene->fittness = 0;
+			gene->fitness = 0;
 		}
 	}
 	for (int i = 0; i < muscles.size(); i++) {
 		if (muscles[i]->inf()) {
 			cout << "INF; Killing robot :(\n";
 			alive = false;
-			gene->fittness = 0;
+			gene->fitness = 0;
 		}
 	}
 }
-long robot::fittness() {
+void robot::calcFitness() {
 	long total = 0;
 	if (alive) {
 		for (int i = 0; i < joints.size(); i++) {
-			total += (joints[i]->position->x * joints[i]->position->y) ;
+			total += (joints[i]->position->x * joints[i]->position->y) / 10;
 		}
 	}
 	if (total <= 0) {
-		gene->fittness = 0;
 		alive = false;
-		return 0;
 	}
 	else {
-		gene->fittness = total / joints.size();
+		gene->fitness += total / joints.size();
 	}
-	return gene->fittness;
+}
+long robot::scaleFitness(int total_ticks) {
+	gene->fitness = gene->fitness / total_ticks;
+	gene->fitness = gene->fitness / 10;
+	return gene->fitness;
 }
 double springForce(float sd) {
 	float q = pow(sd / 4, 2);
@@ -153,9 +155,11 @@ void robot::osc() {
 }
 bool vertical(joint * a, joint * b) {
 	return(
-		a->velocity->x == 0 &&
-		b->velocity->x == 0 &&
-		a->position->x == b->position->x
+		a->force->x < 0.00001 &&
+		b->force->x < 0.00001 &&
+		a->velocity->x < 0.00001 &&
+		b->velocity->x < 0.00001 &&
+		abs(a->position->x - b->position->x) < 0.00001
 	);
 }
 
@@ -176,7 +180,7 @@ void robot::reaction() {
 			if (force > 1e10) {
 				cout << "Something went wrong, killing robot for excessive force: " << force << "\n";
 				alive = false;
-				gene->fittness = 0;
+				gene->fitness = 0;
 			}
 
 
@@ -194,7 +198,7 @@ void robot::reaction() {
 
 			if (vertical(m->a, m->b)) {
 				_verticalInfringements++;
-				if (_verticalInfringements > 3) {
+				if (_verticalInfringements > 20) {
 					alive = false;
 					cout << "VERT; Killing robot :(\n";
 				}
@@ -210,7 +214,7 @@ void robot::reaction() {
 				) {
 				cout << "INF; Killing robot :(\n";
 				alive = false;
-				gene->fittness = 0;
+				gene->fitness = 0;
 			}
 		}
 	}
