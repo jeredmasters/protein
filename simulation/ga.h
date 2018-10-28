@@ -31,7 +31,7 @@ class ga {
 	public:
 		int size();
 		std::vector<uint16_t>* newDna();
-		std::vector<chromosome*> newGeneration();
+		std::vector<chromosome*> newGeneration(int fitnessEval);
 		void breed(std::vector<chromosome*>* population);
 		void mutate(std::vector<chromosome*> * population, float gen_ratio);
 		ga(int size, int length, int selectionPressure, int mutationRate, int mutationVariance, bool steepestDecent, int crossover);

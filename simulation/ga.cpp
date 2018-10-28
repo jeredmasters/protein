@@ -97,13 +97,13 @@ std::vector<uint16_t>* ga::newDna() {
 	return dna;
 }
 
-std::vector<chromosome*> ga::newGeneration() {	
+std::vector<chromosome*> ga::newGeneration(int fitnessEval) {
 	std::vector<chromosome*> population;
 	population.reserve(_size);
 	for (int i = 0; i < _size; i++) {
 		chromosome * c = new chromosome(*newDna());
 
-		robot * r = new robot(c);	
+		robot * r = new robot(c, fitnessEval);
 		if (!r->alive) {
 			delete c;
 			i--;

@@ -2,12 +2,13 @@
 
 #include "stdafx.h"
 
-robot::robot(chromosome * _gene)
+robot::robot(chromosome * _gene, int fitnessEval)
 {
 	_verticalInfringements = 0;
 	gene = _gene;
 	alive = false;
 	gene->fitness = 0;
+	_fitnessEval = fitnessEval;
 
 	for (int i = 0; i < gene->dna.size(); i++) {
 		uint8_t * data = gene->get(i);
@@ -131,13 +132,27 @@ void robot::calcFitness() {
 		alive = false;
 	}
 	else {
-		gene->fitness += total / joints.size();
+		if (_fitnessEval == 3) {
+			gene->fitness += total / joints.size();
+		}
+		else {
+			gene->fitness = total / joints.size();
+		}
 	}
 }
 long robot::scaleFitness(int total_ticks) {
-	gene->fitness = gene->fitness / total_ticks;
-	gene->fitness = gene->fitness / 10;
-	return gene->fitness;
+	switch (_fitnessEval) {
+		case 1:
+			return 0;
+		case 2:
+			gene->fitness = gene->fitness / 10;
+			return gene->fitness;
+		case 3:
+			gene->fitness = gene->fitness / total_ticks;
+			gene->fitness = gene->fitness / 10;
+			return gene->fitness;
+	}
+
 }
 double springForce(float sd) {
 	float q = pow(sd / 4, 2);
