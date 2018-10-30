@@ -18,10 +18,10 @@ renderer::renderer(int height, int width) :
 	_width(width)
 {
 	_offsetY = height;
-	_offsetX = -250;
+	_offsetX = -100;
 	_zeroA = new point(0, 0);
 	_zeroB = new point(0, _height);
-	_fitness = 3;
+	_fitnessEval = 1;
 	_generation = 0;
 	_mark = 0;
 	_redraw = true;
@@ -122,11 +122,11 @@ void renderer::update(robot* robot, obstacle * _obstacle) {
 }
 
 float renderer::modY(float y) {
-	return _offsetY - (y/4 + 20);
+	return _offsetY - (y/6 + 20);
 }
 
 float renderer::modX(float x) {
-	return x/4 - _offsetX;
+	return x/6 - _offsetX;
 }
 
 void renderer::drawRobot(robot * r) {
@@ -228,14 +228,14 @@ void renderer::renderFromFile() {
 				_redraw = true;
 				if (event.key.code == 72) {
 					_generation++;
-					if (_generation > 4) {
+					if (_generation > 5) {
 						_generation = 0;
 						_mark++;
 						if (_mark > 4) {
 							_mark = 0;
-							_fitness++;
-							if (_fitness > 3) {
-								_fitness = 1;
+							_fitnessEval++;
+							if (_fitnessEval > 3) {
+								_fitnessEval = 1;
 							}
 						}
 					}
@@ -243,13 +243,13 @@ void renderer::renderFromFile() {
 				if (event.key.code == 71) {
 					_generation--;
 					if (_generation < 0) {
-						_generation = 4;
+						_generation = 5;
 						_mark--;
 						if (_mark < 0) {
 							_mark = 4;
-							_fitness--;
-							if (_fitness < 1) {
-								_fitness = 1;
+							_fitnessEval--;
+							if (_fitnessEval < 1) {
+								_fitnessEval = 3;
 							}
 						}
 					}
@@ -263,9 +263,10 @@ void renderer::renderFromFile() {
 		gens.push_back(1);
 		gens.push_back(10);
 		gens.push_back(50);
+		gens.push_back(100);
 		gens.push_back(150);
 		gens.push_back(200);
-		renderFile(_fitness, _mark, gens[_generation]);
+		renderFile(_fitnessEval, _mark, gens[_generation]);
 		_redraw = false;
 	}
 }
@@ -277,20 +278,36 @@ void renderer::renderFile(int fitnessEval, int mark, int generation) {
 	char output[100];
 
 	_window.clear(sf::Color(255, 255, 255, 255));
-	_offsetY = 0;
+	_offsetY = 70;
 	sf::Font font;
 	font.loadFromFile("C:\\temp\\arial.ttf");
 
 	sf::Text text;
 
-	string m = "Generation: " + to_string(generation);
 	text.setFont(font);
-	text.setString(m);
+	text.setString("Generation: " + to_string(generation));
 	text.setCharacterSize(18);
 	text.setFillColor(sf::Color::Black);
-	text.setPosition(modX(100), modY(-100));
-	_window.draw(text);
+	text.setPosition(10, 30);
 
+	_window.draw(text);
+	switch (fitnessEval) {
+	case 1:
+		text.setString("Fitness Calc: Distance Travelled");
+		text.setPosition(10, 0);
+		_window.draw(text);
+		break;
+	case 2:
+		text.setString("Fitness Calc: Height by Distance Travelled");
+		text.setPosition(10, 0);
+		_window.draw(text);
+		break;
+	case 3:
+		text.setString("Fitness Calc: Time Averaged Height by Distance Travelled");
+		text.setPosition(10, 0);
+		_window.draw(text);
+		break;
+	}
 	int time = 0;
 	
 	if (myReadFile.is_open()) {
@@ -325,31 +342,45 @@ void renderer::renderFile(int fitnessEval, int mark, int generation) {
 					delete a;
 				}
 				else if (strings[0] == "======================================") {
-					_offsetY = _offsetY + 100;
+					_offsetY = _offsetY + 60;
 
-					sf::Text text;
-
-					text.setFont(font);
-					// text.setString("Time: " + to_string(time * 5) + "s");
+					text.setString("Time: " + to_string(time * 5) + "s");
 					text.setCharacterSize(14);
-					text.setFillColor(sf::Color::Black);
-					text.setPosition(modX(-50), modY(100));
+					text.setPosition(modX(-500), modY(200));
 					_window.draw(text);
-					time++;
-				}
-			}
-			a = new point(-200, 0);
-			b = new point(2000, 0);
-			drawLine(a, b, sf::Color(0, 0, 0, 255));
-			delete a;
-			delete b;
+					for (int i = 1; i < 30; i++) {
+						a = new point(i * 255, -30);
+						b = new point(i * 255, 30);
+						drawLine(a, b, sf::Color(0, 0, 0, 255));
+						delete a;
+						delete b;
+						if (i % 2 == 0) {
+							text.setString(to_string(i) + "m");
+							text.setCharacterSize(10);
+							text.setPosition(modX(i * 255 - 30), modY(-50));
+							_window.draw(text);
+						}
+					}
 
-			a = new point(0, 0);
-			b = new point(0, 255);
-			drawLine(a, b, sf::Color(0, 0, 0, 255));
-			delete a;
-			delete b;
+					time++;
+
+					a = new point(-200, 0);
+					b = new point(8000, 0);
+					drawLine(a, b, sf::Color(0, 0, 0, 255));
+					delete a;
+					delete b;
+
+					a = new point(0, 0);
+					b = new point(0, 255);
+					drawLine(a, b, sf::Color(0, 0, 0, 255));
+					delete a;
+					delete b;
+				}
+			}			
+
+
 		}
+
 	}
 	
 	_window.display();

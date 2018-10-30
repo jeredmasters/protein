@@ -18,7 +18,7 @@ class renderer {
 		float modX(float x);
 		point* _zeroA;
 		point* _zeroB;
-		int _fitness;
+		int _fitnessEval;
 		int _generation;
 		int _mark;
 		bool _redraw;

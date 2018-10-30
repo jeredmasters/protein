@@ -124,8 +124,15 @@ void robot::validate() {
 void robot::calcFitness() {
 	long total = 0;
 	if (alive) {
-		for (int i = 0; i < joints.size(); i++) {
-			total += (joints[i]->position->x * joints[i]->position->y) / 10;
+		if (_fitnessEval == 1) {
+			for (int i = 0; i < joints.size(); i++) {
+				total += joints[i]->position->x;
+			}
+		}
+		else {
+			for (int i = 0; i < joints.size(); i++) {
+				total += (joints[i]->position->x * joints[i]->position->y) / 10;
+			}
 		}
 	}
 	if (total <= 0) {

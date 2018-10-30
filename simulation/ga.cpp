@@ -117,7 +117,7 @@ std::vector<chromosome*> ga::newGeneration(int fitnessEval) {
 }
 std::vector<uint16_t>* ga::choose(long long int max) {
 	if (max == 0) {
-		int i = randLONG(_size);
+		int i = randLONG(_size - 1);
 		return &_temp[i]->dna;
 	}
 	long long int v = randLLONG(max);
