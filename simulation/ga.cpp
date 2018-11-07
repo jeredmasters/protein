@@ -19,10 +19,12 @@ ga::ga(int size, int length, int selectionPressure, int mutationRate, int mutati
 	_temp.reserve(_size);
 }
 
+/* Generate a random long less then max */
 long ga::randLONG(long max) {
 	return (distribution(generator) % (max + 1));
 }
 
+/* Generate a random long long less than max */
 long long int ga::randLLONG(long long int max) {
 	long long int r1 = distribution(generator);
 	long long int r2 = distribution(generator);
@@ -30,7 +32,7 @@ long long int ga::randLLONG(long long int max) {
 	return ((r1 * r2 * r3) % (max + 1));
 }
 
-
+/* Crossover two chromosomes and insert them back into the population */
 void ga::crossover(std::vector<uint16_t>* a, std::vector<uint16_t>* b, std::vector<chromosome*>* population, int i) {
 	// initialize random time
 	srand(time(NULL));
@@ -51,10 +53,12 @@ void ga::crossover(std::vector<uint16_t>* a, std::vector<uint16_t>* b, std::vect
 		}
 	}
 	else {
+		// Choose chrossover points
 		int * slices = (int*)malloc(sizeof(int) * _crossover_rate);
 		for (int i = 0; i < _crossover_rate; i++) {
 			slices[i] = (int)randLONG(_length);
 		}
+
 		// loop through each segment of the new chromosome
 		for (int i = 0; i < _length; i++) {
 
@@ -71,20 +75,22 @@ void ga::crossover(std::vector<uint16_t>* a, std::vector<uint16_t>* b, std::vect
 			for (int j = 0; j < _crossover_rate; j++) {
 				if (slices[j] == i) {
 					slice = !slice;
+					break;
 				}
 			}
 		}
 		free(slices);
 	}
 
-	population[0][i] = new chromosome(c);
-
-	// Occurs in the case of steepest descent
-	if (i + 1 < _size) { 
+	// Put both new chromosomes into the population
+	// (unless steepest descent is on and this is the last chromosome to go in)
+	population[0][i] = new chromosome(c);	
+	if (i + 1 < _size) { // Occurs in the case of steepest descent
 		population[0][i + 1] = new chromosome(d);
 	}
 }
 
+/* Create an entirely new chromosome */
 std::vector<uint16_t>* ga::newDna() {
 	std::vector<uint16_t>* dna = new std::vector<uint16_t>;
 	dna->reserve(_length);
@@ -94,13 +100,14 @@ std::vector<uint16_t>* ga::newDna() {
 	return dna;
 }
 
+/* Create an entirely new population */
 std::vector<chromosome*> ga::newGeneration() {	
 	std::vector<chromosome*> population;
 	population.reserve(_size);
 	for (int i = 0; i < _size; i++) {
 		chromosome * c = new chromosome(*newDna());
 
-		robot * r = new robot(c);	
+		robot * r = new robot(c, false);	
 		if (!r->alive) {
 			delete c;
 			i--;
@@ -112,6 +119,8 @@ std::vector<chromosome*> ga::newGeneration() {
 	}
 	return population;
 }
+
+/* Choose a chromosome based on the roulette wheel */
 std::vector<uint16_t>* ga::choose(long long int max) {
 	long long int v = randLLONG(max);
 	for (int i = 0; i < _size; i++) {
@@ -122,7 +131,11 @@ std::vector<uint16_t>* ga::choose(long long int max) {
 	}
 	return newDna();
 }
+
+/* Sort evaluation */
 bool sortGene(chromosome* a, chromosome* b) { return (a->fittness > b->fittness); }
+
+/* Breed the population */
 void ga::breed(std::vector<chromosome*>* population) {
 	std::sort(population->begin(), population->end(), sortGene);
 	for (int i = 0; i < _size; i++) {
@@ -130,19 +143,14 @@ void ga::breed(std::vector<chromosome*>* population) {
 	}
 
 	srand(time(NULL));
+	// Handle very large values for fitness (becomes an issue when selection pressure == 4)
 	long long int total = 0;
 
 	#pragma omp parallel for reduction(+:total)
 	for (int i = 0; i < _size; i++) {
 		long long int weighted = _temp[i]->fittness;
 		if (weighted > 0) {
-			if (_selectionPressure == 4) {
-				weighted = pow(weighted / 100, 2);
-				weighted = pow(weighted / 100, 2);
-			}
-			else {
-				weighted = pow(weighted / 100, _selectionPressure);
-			}
+			weighted = pow(weighted, _selectionPressure);		
 			
 			total += weighted;
 			_temp[i]->weighted_rank = weighted;
@@ -152,24 +160,8 @@ void ga::breed(std::vector<chromosome*>* population) {
 		}
 	}
 
-
-	if (total <= 0) {
-		#pragma omp for
-		for (int i = 0; i < _size; i++) {
-			if (_temp[i]->fittness > 0) {
-				cout << "FALSE REGRESSION!!\n";
-			}
-		}
-		#pragma omp for
-		for (int i = 0; i < _size; i++) {
-			delete _temp[i];
-		}
-		_temp.clear();
-		population->clear();
-		cout << "REGRESSION!!\n";
-		return;
-	}
 	if (_steepestDecent) {
+		// Copy the top performing chromosome into the next generation
 		population[0][0] = _temp[0];
 	}
 	#pragma omp for
@@ -185,7 +177,8 @@ void ga::breed(std::vector<chromosome*>* population) {
 	_temp.clear();
 }
 
-int ga::bitwiseRate(float gen_ratio, int bit_significance) {
+/* Calculation the bitwise mutation scaling */
+float ga::bitwiseRate(float gen_ratio, int bit_significance) {
 	float y = gen_ratio;
 	float x = 3-bit_significance;	
 	
@@ -194,24 +187,25 @@ int ga::bitwiseRate(float gen_ratio, int bit_significance) {
 	return _size / (_mutationRate * bit_ratio);
 }
 
+/* Get random bits for mutation */
 uint16_t ga::randBits(float gen_ratio) {
 	uint16_t retval = 0x00;
 	switch (_mutationVariance) {
-	case 0:
+	case 0: // No mutation variance
 		for (int i = 0; i < 16; i++) {
 			if (randLONG(_size / _mutationRate + 1) == 0) {
 				retval += pow(2, i);
 			}
 		}
 		break;
-	case 1:
+	case 1: // Linear mutation variance
 		for (int i = 0; i < 16; i++) {
 			if (randLONG(_size / (_mutationRate / gen_ratio) + 1) == 0) {
 				retval += pow(2, i);
 			}
 		}
 		break;
-	case 2:
+	case 2: // Bitwise mutation variance
 		for (int a = 0; a < 4; a++) {
 			for (int bit = 0; bit < 4; bit++) {
 				int i = a * 4 + bit;
@@ -221,11 +215,11 @@ uint16_t ga::randBits(float gen_ratio) {
 			}
 		}
 		break;
-	}	
-	
+	}
 	return retval;
 }
 
+/* Mutate an entire population */
 void ga::mutate(std::vector<chromosome*> * population, float gen_ratio) {
 	if (_mutationRate == 0) {
 		return;
@@ -239,6 +233,7 @@ void ga::mutate(std::vector<chromosome*> * population, float gen_ratio) {
 	}
 }
 
+/* Get size */
 int ga::size() {
 	return _size;
 }

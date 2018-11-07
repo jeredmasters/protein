@@ -17,13 +17,23 @@ class robot
 		void friction();
 		void floor(obstacle * _obstacle);
 		void applyForce();
+		double springForce(float sd);
+
 		int _verticalInfringements;
+
+		float _gravity;
+		float _airFriction;
+		float _groundFriction;
+		float _groundHardness;
+		float _muscleElasticity;
+		float _inertia;
+
 
 		
 	public:
 		std::vector<joint*> joints;
 		std::vector<muscle*> muscles;
-		robot(chromosome * _gene);
+		robot(chromosome * _gene, bool randomisedPhysics);
 		~robot();
 		void tick(obstacle * _obstacle);
 		bool alive;

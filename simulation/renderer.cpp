@@ -17,8 +17,6 @@ renderer::renderer(int height, int width) :
 }
 
 void renderer::update(std::vector<robot*>* robots, obstacle * _obstacle) {
-
-
 	sf::Event event;
 	while (_window.pollEvent(event))
 	{
@@ -32,21 +30,7 @@ void renderer::update(std::vector<robot*>* robots, obstacle * _obstacle) {
 				_offsetX += event.mouseWheelScroll.delta * 50;
 		}
 	}
-
-
-	_window.clear(sf::Color(255, 255, 255, 255));
-	long fittest = 0;
-	int fittext_index = 0;
-	for (int i = 0; i < robots->size(); i++) {
-		if (robots[0][i]->gene->fittness > fittest) {
-			//fittext_index = i;
-			fittest = robots[0][i]->gene->fittness;
-		}
-		
-	}
-	robots[0][0]->tag = sf::Color(50, 50, 255, 255);
-	robots[0][fittext_index]->tag = sf::Color(50, 200, 200, 255);
-
+	
 	drawLine(_zeroA, _zeroB, sf::Color(0, 0, 0, 255));
 
 	for (int i = 0; i < robots->size(); i++) {

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-
 parameters::parameters() {
 	this->complete = true;
 	this->benchmark = true;
